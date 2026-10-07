@@ -6,12 +6,13 @@
    ===================================================================== */
 
 // VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
-const APP_VERSION = '1.6.0';
+const APP_VERSION = '1.7.0';
 const APP_FECHA = '6 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
 const INTERVALOS = [1, 2, 4, 7, 15, 30]; // días de espera al llegar a la caja 1..6
 const TARJETAS_POR_SESION = 20;
+const NUEVAS_POR_DIA = 15; // tarjetas nuevas que entran al repaso cada día (se reparten en los días siguientes)
 const LS_KEY = 'cursoIngles.v1';
 
 const TEMARIO = [
@@ -137,9 +138,17 @@ const pendientesHoy = () => tarjetas().filter(t => normFecha(t.proxima_revision)
 
 function asegurarTarjetas() {
   const nuevas = [];
+  // las nuevas se reparten: hasta NUEVAS_POR_DIA por día, contando las que ya entraron (caja 1 sin repasar) para hoy y después
+  const yaAgendadas = {};
+  tarjetas().filter(t => !t.ultima_revision).forEach(t => { const f = normFecha(t.proxima_revision); yaAgendadas[f] = (yaAgendadas[f] || 0) + 1; });
+  let dia = 0;
+  const siguienteFecha = () => {
+    while ((yaAgendadas[sumarDias(dia)] || 0) >= NUEVAS_POR_DIA) dia++;
+    const f = sumarDias(dia); yaAgendadas[f] = (yaAgendadas[f] || 0) + 1; return f;
+  };
   Object.values(INDICE).forEach(it => {
     if (S.vocab[it.id] || !desbloqueada(it.clase_id)) return;
-    const t = { id: it.id, tipo: it.tipo, en: it.en, es: it.es, clase_id: it.clase_id, caja: 1, proxima_revision: hoy(),
+    const t = { id: it.id, tipo: it.tipo, en: it.en, es: it.es, clase_id: it.clase_id, caja: 1, proxima_revision: siguienteFecha(),
       aciertos: 0, fallos: 0, ultima_revision: '', ultimo_error: '' };
     S.vocab[it.id] = t; nuevas.push(t);
   });
@@ -147,24 +156,24 @@ function asegurarTarjetas() {
 }
 
 /* ---------- Corrección de respuestas ---------- */
-function normalizar(t) {
+// alt = true lee 's como "has" y 'd como "had" (She's finished = She has finished)
+function normalizar(t, alt = false) {
   let s = String(t || '').toLowerCase().replace(/[’‘`´]/g, "'").replace(/[“”"]/g, '');
   s = s.replace(/\bcan't\b/g, 'can not').replace(/\bcannot\b/g, 'can not').replace(/\bwon't\b/g, 'will not')
     .replace(/n't\b/g, ' not').replace(/'m\b/g, ' am').replace(/'re\b/g, ' are').replace(/'ve\b/g, ' have')
-    .replace(/'ll\b/g, ' will').replace(/'d\b/g, ' would').replace(/'s\b/g, ' is');
+    .replace(/'ll\b/g, ' will').replace(/'d\b/g, alt ? ' had' : ' would').replace(/'s\b/g, alt ? ' has' : ' is');
   return s.replace(/[.,!?;:¡¿()]/g, ' ').replace(/[-–—]/g, ' ').replace(/\s+/g, ' ').trim();
 }
+const lecturas = t => [...new Set([normalizar(t), normalizar(t, true)])];
 function esCorrecta(resp, item) {
-  const r = normalizar(resp);
-  if (!r) return false;
-  if (item.respuestas.some(a => normalizar(a) === r)) return true;
+  if (!normalizar(resp)) return false;
+  const rs = lecturas(resp);
+  if (item.respuestas.some(a => lecturas(a).some(x => rs.includes(x)))) return true;
   // también vale escribir la oración (o un trozo de ella) con el espacio rellenado: "It's raining"
   if ((item.pregunta.match(/___/g) || []).length === 1) {
     const base = item.pregunta.replace(/\(.*?\)/g, '');
-    if (item.respuestas.some(a => {
-      const completa = ' ' + normalizar(base.replace('___', a)) + ' ';
-      return completa.includes(' ' + r + ' ') && (' ' + r + ' ').includes(' ' + normalizar(a) + ' ');
-    })) return true;
+    if (item.respuestas.some(a => lecturas(base.replace('___', a)).some(completa => rs.some(r =>
+      (' ' + completa + ' ').includes(' ' + r + ' ') && lecturas(a).some(na => (' ' + r + ' ').includes(' ' + na + ' ')))))) return true;
   }
   return false;
 }
@@ -395,7 +404,8 @@ function vistaClase(id, tab) {
   const estado = aprobada(id) ? `<span class="chip verde">Aprobada · ${p.mejor_puntaje}%</span>` : p ? `<span class="chip amarillo">Mejor intento: ${p.mejor_puntaje}%</span>` : '';
   const cuerpo = { gramatica: tabGramatica, verbos: tabVerbos, vocabulario: tabVocabulario, phrasal: tabPhrasal, practica: tabPractica, escritura: tabEscritura }[tab] || tabGramatica;
   return `<div class="head"><div><p>Etapa ${c.etapa} · Clase ${c.id} ${estado}</p><h1>${esc(c.titulo)}</h1><p>${esc(c.subtitulo)} — ${esc(c.objetivo)}</p></div>
-    <a class="btn grande" href="#/prueba/${id}">✎ Rendir prueba</a></div>
+    <div class="acciones" style="margin:0"><button class="btn sec grande" data-act="repaso-clase" data-id="${id}">⚡ Practicar esta clase</button>
+    <a class="btn grande" href="#/prueba/${id}">✎ Rendir prueba</a></div></div>
     <div class="tabs">${PESTANAS.map(([k, n]) => `<a href="#/clase/${id}/${k}" class="${k === tab ? 'on' : ''}">${n}</a>`).join('')}</div>
     ${cuerpo(c)}`;
 }
@@ -406,7 +416,7 @@ function tabGramatica(c) {
 function tabVerbos(c) {
   return `<div class="aviso azul">💡 Actívate a ti mismo: pulsa <b>Ocultar formas</b>, di en voz alta el pasado y el participio, y luego haz clic para comprobar.</div>
   <div class="acciones" style="margin:0 0 12px"><button class="btn sec" data-act="ocultar">👁 Ocultar / mostrar formas</button>
-    <button class="btn sec" data-act="repaso-verbos">⚡ Practicar verbos</button></div>
+    <button class="btn sec" data-act="repaso-clase" data-id="${c.id}">⚡ Practicar esta clase</button></div>
   <div class="card"><table id="tverbos"><tr><th>Base</th><th>Pasado</th><th>Participio</th><th>Español</th><th>Ejemplo</th></tr>
   ${c.verbos.map(v => `<tr><td><b>${esc(v.base)}</b>${voz(formasVoz(`${v.base} – ${v.pasado} – ${v.participio}`))}</td>
     <td class="f" data-act="ver"><span>${esc(v.pasado)}</span></td><td class="f" data-act="ver"><span>${esc(v.participio)}</span></td>
@@ -532,12 +542,15 @@ function vistaResultado(c) {
 
 /* ---------- Repaso con repetición espaciada ---------- */
 let R = null;
-function iniciarRepaso(modo) {
+// modo: 'hoy' (pendientes) · 'verbos' (verbos al azar) · 'clase' (todas las tarjetas de una clase, para preparar la prueba)
+function iniciarRepaso(modo, claseId) {
   asegurarTarjetas();
-  const ids = modo === 'verbos'
-    ? barajar(tarjetas().filter(t => t.tipo === 'verbo')).slice(0, TARJETAS_POR_SESION).map(t => t.id)
+  const ids = modo === 'verbos' ? barajar(tarjetas().filter(t => t.tipo === 'verbo')).slice(0, TARJETAS_POR_SESION).map(t => t.id)
+    : modo === 'clase' ? barajar(tarjetas().filter(t => t.clase_id === claseId)).sort((a, b) => a.caja - b.caja).slice(0, TARJETAS_POR_SESION).map(t => t.id)
     : barajar(pendientesHoy()).sort((a, b) => a.caja - b.caja).slice(0, TARJETAS_POR_SESION).map(t => t.id);
-  R = { cola: ids, pos: 0, modo, res: null, primeros: {}, reencolados: new Set(), snap: null, fin: null };
+  // 🎧 modo escuchar: ~1 de cada 3 palabras ya conocidas (caja ≥ 2) se dicta en vez de mostrarse en español
+  const escuchar = new Set(HAY_VOZ ? ids.filter(id => S.vocab[id].tipo !== 'verbo' && S.vocab[id].caja >= 2 && Math.random() < 0.35) : []);
+  R = { cola: ids, pos: 0, modo, claseId, res: null, primeros: {}, reencolados: new Set(), snap: null, fin: null, escuchar, sonado: -1 };
   if (location.hash !== '#/repaso') location.hash = '#/repaso'; else render();
 }
 function vistaRepaso() {
@@ -551,7 +564,9 @@ function vistaRepaso() {
     <div class="card"><h3>${due ? `Tienes ${due} tarjeta${due > 1 ? 's' : ''} para hoy` : 'Nada pendiente por hoy ✓'}</h3>
       <p style="color:var(--sub)">${due ? `Sesiones de hasta ${TARJETAS_POR_SESION} tarjetas. Primero las más difíciles.` : 'Vuelve mañana o sigue avanzando con tu clase. Si quieres, practica verbos igual.'}</p>
       <div class="acciones">${due ? `<button class="btn grande" data-act="repaso-iniciar">↻ Empezar repaso</button>` : ''}
-        <button class="btn sec" data-act="repaso-verbos">⚡ Practicar verbos al azar</button></div></div>`;
+        ${claseActual() && claseDatos(claseActual().id) ? `<button class="btn sec" data-act="repaso-clase" data-id="${claseActual().id}">📘 Practicar clase ${claseActual().id}</button>` : ''}
+        <button class="btn sec" data-act="repaso-verbos">⚡ Practicar verbos al azar</button></div>
+      <p style="color:var(--sub);font-size:13px;margin-top:12px">Las tarjetas nuevas entran de a ${NUEVAS_POR_DIA} por día para no saturarte. 🎧 Algunas palabras que ya conoces te las dictará la voz.</p></div>`;
   }
   const id = R.cola[R.pos], t = S.vocab[id], info = INDICE[id], res = R.res;
   let campos;
@@ -564,12 +579,15 @@ function vistaRepaso() {
   } else {
     campos = `<input class="txt ${res ? (res.ok ? 'bien' : 'mal') : ''}" data-campo="tarjeta" value="${esc(res ? res.campos[0] : '')}" ${res ? 'disabled' : ''} placeholder="Escribe en inglés…" autocomplete="off" autocapitalize="off" spellcheck="false">`;
   }
-  const etiqueta = t.tipo === 'verbo' ? 'Verbo · escribe las 3 formas' : `${TIPOS[t.tipo]} · escríbelo en inglés`;
+  const oir = R.escuchar.has(id);
+  const etiqueta = t.tipo === 'verbo' ? 'Verbo · escribe las 3 formas' : oir ? '🎧 Escucha y escribe lo que oyes' : `${TIPOS[t.tipo]} · escríbelo en inglés`;
+  const titulo = R.modo === 'verbos' ? 'Práctica de verbos' : R.modo === 'clase' ? `Práctica · Clase ${R.claseId}` : 'Repaso de hoy';
   return `<div class="tarjeta">
-    <div class="prog"><span>${R.modo === 'verbos' ? 'Práctica de verbos' : 'Repaso de hoy'}</span><span>${Math.min(R.pos + 1, R.cola.length)} / ${R.cola.length}</span></div>
+    <div class="prog"><span>${titulo}</span><span>${Math.min(R.pos + 1, R.cola.length)} / ${R.cola.length}</span></div>
     <div class="pbar"><i style="width:${R.pos / R.cola.length * 100}%"></i></div>
     <div class="flash"><span class="caja chip">Caja ${Math.min(t.caja, 6)}</span><div class="etq">${etiqueta}</div>
-      <div class="w">${esc(t.es)}</div>${campos}
+      ${oir && !res ? `<div class="w"><button class="btn sec grande" data-act="hablar" data-t="${esc(t.en)}">🔊 Escuchar de nuevo</button></div>`
+        : `<div class="w">${esc(t.es)}</div>`}${campos}
       ${res ? `<div class="resultado ${res.ok ? 'bien' : 'mal'}">
           ${res.ok ? '✓ ¡Correcto!' : res.casi ? '✗ ¡Casi! Revisa la ortografía:' : '✗ La respuesta es:'} <b class="mono">${esc(t.en)}</b>${voz(formasVoz(t.en))}
           ${info.ejemplo ? `<div class="ej">${esc(info.ejemplo)}${voz(info.ejemplo)}</div>` : ''}</div>
@@ -606,7 +624,7 @@ function calificar(id, ok, error) {
   t.ultima_revision = new Date().toISOString();
   if (ok) {
     t.aciertos++;
-    if (tocaHoy) { t.caja = Math.min(t.caja + 1, 6); t.proxima_revision = sumarDias(INTERVALOS[t.caja - 1]); }
+    if (tocaHoy) { t.caja = Math.min(t.caja + 1, 6); t.proxima_revision = sumarDias(INTERVALOS[t.caja - 1]); } // practicar antes de tiempo no adelanta la caja
   } else {
     t.fallos++; t.caja = 1; t.proxima_revision = sumarDias(1); t.ultimo_error = error;
     if (!R.reencolados.has(id)) { R.reencolados.add(id); R.cola.push(id); }
@@ -723,6 +741,9 @@ function render() {
   pintarSync();
   // foco automático
   const sig = $('#btn-sig');
+  if (R && !R.fin && !R.res && ruta === 'repaso' && R.escuchar.has(R.cola[R.pos]) && R.sonado !== R.pos) {
+    R.sonado = R.pos; hablar(S.vocab[R.cola[R.pos]].en);
+  }
   if (sig) sig.focus();
   else { const f = $('[data-campo="tarjeta"]:not([disabled]), [data-campo="prueba"]'); if (f) f.focus(); }
 }
@@ -763,6 +784,7 @@ document.addEventListener('click', e => {
     case 'prueba-reintentar': P = null; render(); break;
     case 'repaso-iniciar': iniciarRepaso('hoy'); break;
     case 'repaso-verbos': iniciarRepaso('verbos'); break;
+    case 'repaso-clase': iniciarRepaso('clase', +el.dataset.id); break;
     case 'tarjeta-comprobar': comprobarTarjeta(false); break;
     case 'tarjeta-nose': comprobarTarjeta(true); break;
     case 'tarjeta-sig': siguienteTarjeta(); break;
