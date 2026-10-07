@@ -263,7 +263,11 @@ function vistaPanel() {
     ? `Clase actual: ${actual.id} · ${esc(actual.titulo)}${claseDatos(actual.id) ? '' : ' (contenido en preparación)'}`
     : '¡Terminaste todas las clases!';
 
-  return `
+  const avisoConectar = S.config.url ? '' : `<div class="aviso azul" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <span style="flex:1;min-width:220px">📲 <b>${esAppInstalada() ? 'Conecta esta app' : 'Conecta este dispositivo'}</b> a tu planilla para guardar tu avance.
+    Copia el link en el curso ya conectado (⚙ Configuración → <i>Copiar link de vinculación</i>) y pégalo aquí.</span>
+    <button class="btn" data-act="pegar-link">📋 Pegar link y conectar</button></div>`;
+  return `${avisoConectar}
   <div class="head"><div><h1>Hola, ${esc(S.config.nombre || '')} 👋</h1><p>${sub}</p></div>${cta}</div>
   <div class="kpis">
     <div class="k"><div class="l">Racha</div><div class="v">${r.actual} <small>día${r.actual === 1 ? '' : 's'}</small></div><div class="d">Récord: ${r.record} día${r.record === 1 ? '' : 's'}</div></div>
@@ -629,7 +633,8 @@ function vistaConfig() {
       <div class="acciones"><button class="btn" data-act="cfg-guardar">Guardar y probar conexión</button><span id="cfg-msg"></span></div>
     </div>
     ${S.config.url ? `<div class="card"><h3>📱 Vincular el celular u otro dispositivo</h3>
-      <p style="color:var(--sub)">Escanea este código con la cámara del celular: se abre el curso ya conectado a tu planilla, sin escribir nada.</p>
+      <p style="color:var(--sub)">Escanea este código con la cámara del celular: se abre el curso ya conectado a tu planilla, sin escribir nada.
+        <br><b>iPhone, app anclada al inicio:</b> no comparte datos con Safari. En Safari (ya conectado) toca <i>Copiar link de vinculación</i>, abre la app anclada y toca <i>📋 Pegar link y conectar</i>.</p>
       <div class="acciones"><button class="btn" data-act="qr">Mostrar código QR</button><button class="btn sec" data-act="copiar-link">Copiar link de vinculación</button></div>
       <div id="qr" style="margin-top:16px"></div>
       <p style="color:var(--rojo);font-size:12.5px;margin-top:10px">🔒 El QR y el link contienen tu clave: úsalos solo en tus dispositivos y no los compartas.</p></div>` : ''}
@@ -705,6 +710,12 @@ document.addEventListener('click', e => {
       const caja = $('#qr'); caja.innerHTML = '';
       if (!window.QRCode) { caja.textContent = 'No se pudo cargar el generador de QR (¿sin internet?). Usa "Copiar link".'; break; }
       new QRCode(caja, { text: linkVinculacion(), width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+      break;
+    }
+    case 'pegar-link': {
+      const pedirTexto = () => prompt('Pega aquí tu link de vinculación:') || '';
+      (navigator.clipboard?.readText ? navigator.clipboard.readText().catch(pedirTexto) : Promise.resolve(pedirTexto()))
+        .then(t => { if (!/conectar=/.test(t)) t = pedirTexto(); if (t) conectarConLink(t); });
       break;
     }
     case 'copiar-link':
@@ -785,19 +796,30 @@ function linkVinculacion() {
   const datos = btoa(JSON.stringify({ u: S.config.url, t: S.config.token, n: S.config.nombre }));
   return `${APP_ONLINE}#conectar=${encodeURIComponent(datos)}`;
 }
-function leerVinculacion() {
-  const m = location.hash.match(/^#conectar=([\s\S]+)$/);
+// Recibe un link (o solo la parte "conectar=…") y guarda la conexión. Tolera espacios o saltos de línea.
+function aplicarVinculacion(texto) {
+  const m = String(texto).match(/conectar=([\s\S]+)$/);
   if (!m) return false;
-  let ok = false;
   try {
-    // tolera espacios o saltos de línea que se cuelan al copiar el link
-    const d = JSON.parse(atob(decodeURIComponent(m[1]).replace(/\s+/g, '')));
-    if (d.u && d.t) { S.config.url = d.u; S.config.token = d.t; if (d.n) S.config.nombre = d.n; guardarLocal(); ok = true; }
+    const d = JSON.parse(atob(decodeURIComponent(m[1].trim()).replace(/\s+/g, '')));
+    if (d.u && d.t) { S.config.url = d.u; S.config.token = d.t; if (d.n) S.config.nombre = d.n; guardarLocal(); return true; }
   } catch (e) { /* link incompleto */ }
+  return false;
+}
+function leerVinculacion() {
+  if (!/^#conectar=/.test(location.hash)) return false;
+  const ok = aplicarVinculacion(location.hash);
   history.replaceState(null, '', location.pathname + '#/panel'); // borra la clave de la barra de direcciones
   if (!ok) setTimeout(() => alert('El link de vinculación llegó incompleto. Ábrelo desde tu planilla: menú 🎓 Curso Inglés → Conectar este navegador.'), 300);
   return ok;
 }
+// Conecta con un link pegado (la app anclada al inicio del iPhone no comparte datos con Safari)
+async function conectarConLink(texto) {
+  if (!aplicarVinculacion(texto)) { alert('Ese no es un link de vinculación completo. En el curso ya conectado: ⚙ Configuración → Copiar link de vinculación.'); return; }
+  try { await cargarDesdeSheets(); enviarVocab(Object.values(S.vocab)); } catch (e) { errorSync = e.message; }
+  location.hash = '#/panel'; render(); sincronizar();
+}
+const esAppInstalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
 /* ---------- Inicio ---------- */
 const recienVinculado = leerVinculacion();
