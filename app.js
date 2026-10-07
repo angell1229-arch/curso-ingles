@@ -786,14 +786,17 @@ function linkVinculacion() {
   return `${APP_ONLINE}#conectar=${encodeURIComponent(datos)}`;
 }
 function leerVinculacion() {
-  const m = location.hash.match(/^#conectar=(.+)$/);
+  const m = location.hash.match(/^#conectar=([\s\S]+)$/);
   if (!m) return false;
+  let ok = false;
   try {
-    const d = JSON.parse(atob(decodeURIComponent(m[1])));
-    if (d.u && d.t) { S.config.url = d.u; S.config.token = d.t; if (d.n) S.config.nombre = d.n; guardarLocal(); }
-  } catch (e) { /* link dañado: se ignora */ }
+    // tolera espacios o saltos de línea que se cuelan al copiar el link
+    const d = JSON.parse(atob(decodeURIComponent(m[1]).replace(/\s+/g, '')));
+    if (d.u && d.t) { S.config.url = d.u; S.config.token = d.t; if (d.n) S.config.nombre = d.n; guardarLocal(); ok = true; }
+  } catch (e) { /* link incompleto */ }
   history.replaceState(null, '', location.pathname + '#/panel'); // borra la clave de la barra de direcciones
-  return true;
+  if (!ok) setTimeout(() => alert('El link de vinculación llegó incompleto. Ábrelo desde tu planilla: menú 🎓 Curso Inglés → Conectar este navegador.'), 300);
+  return ok;
 }
 
 /* ---------- Inicio ---------- */
