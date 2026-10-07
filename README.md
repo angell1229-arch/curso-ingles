@@ -1,4 +1,4 @@
-# English Lab — Curso de inglés B1
+# Saber Lab — English + Finanzas
 
 App: https://angell1229-arch.github.io/curso-ingles/
 

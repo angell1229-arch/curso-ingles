@@ -1,6 +1,6 @@
 {
-  "name": "English Lab — Curso de inglés",
-  "short_name": "English Lab",
+  "name": "Saber Lab — English y Finanzas",
+  "short_name": "Saber Lab",
   "start_url": "./#/panel",
   "scope": "./",
   "display": "standalone",

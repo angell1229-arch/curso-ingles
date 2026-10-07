@@ -18,7 +18,7 @@ h1,h2,.num{font-family:'Space Grotesk',Inter,sans-serif}
 
 /* ---------- Navegación ---------- */
 nav{background:var(--side);border-right:1px solid var(--borde);padding:26px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-.lg{font-family:'Space Grotesk';font-weight:700;font-size:21px;padding:0 10px 26px}.lg b{color:var(--verde)}
+.lg{font-family:'Space Grotesk';font-weight:700;font-size:21px;padding:0 10px 14px}.lg b{color:var(--verde)}
 .links a{padding:10px 12px;border-radius:8px;color:var(--sub);font-weight:500;display:flex;gap:10px;align-items:center;margin-bottom:2px}
 .links a:hover{background:#eef1f4;color:var(--txt)}
 .links a.on{background:#fff;color:var(--txt);box-shadow:inset 3px 0 0 var(--verde),0 1px 2px rgba(0,0,0,.06);font-weight:600}
@@ -192,4 +192,42 @@ input.txt.mal{border-color:#ff8182;background:#fffafa}
   .kpis{gap:10px}
   .k .v{font-size:28px}
   .head h1{font-size:23px}
+}
+
+/* ---------- Selector de cursos ---------- */
+.cursos{display:flex;gap:4px;background:#eaeef2;border-radius:10px;padding:4px;margin:0 0 18px}
+.cur{flex:1;border:none;background:none;border-radius:7px;padding:8px 6px;font-weight:600;font-size:13px;color:var(--sub);cursor:pointer;white-space:nowrap}
+.cur.on{background:#fff;color:var(--txt);box-shadow:0 1px 3px rgba(31,35,40,.15)}
+
+/* ---------- Finanzas ---------- */
+pre.formula{font-family:'JetBrains Mono',monospace;font-size:13px;background:#f6f8fa;border:1px solid var(--linea);border-left:3px solid var(--c2);border-radius:6px;padding:10px 12px;margin:0 0 10px;white-space:pre-wrap;line-height:1.6}
+.expl{margin-top:6px;font-size:13px;color:#0a3069;background:var(--azul-bg);border-radius:6px;padding:6px 10px}
+.ops.largas{flex-direction:column;align-items:stretch}
+.ops.largas .op{text-align:left}
+.num-campo{display:flex;align-items:center;gap:8px;max-width:320px}
+.num-campo span{font-weight:600;color:var(--sub)}
+.flash .w.def{font-family:Inter,sans-serif;font-size:19px;font-weight:500;line-height:1.5}
+.fuentes{padding-left:18px}.fuentes li{margin:4px 0}.fuentes a{color:var(--azul)}
+.calc{margin-bottom:16px}
+.calc-grid{display:grid;grid-template-columns:280px 1fr;gap:20px}
+.calc-in{display:flex;flex-direction:column;gap:10px}
+.calc-in label{font-size:13px;font-weight:600;color:var(--sub)}
+.calc-in input{margin-top:4px}
+.cr{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--linea);font-size:14px}
+.cr b{font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.cr.fuerte b{font-size:17px;color:var(--verde)}
+.nota-calc{font-size:12.5px;color:var(--sub);margin-top:10px}
+.barras{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.br{display:grid;grid-template-columns:60px 1fr 120px;gap:8px;align-items:center;font-size:12.5px}
+.br b{font-family:'JetBrains Mono',monospace;text-align:right}
+.bt{display:flex;height:12px;background:var(--linea);border-radius:6px;overflow:hidden}
+.bt i,.ley i{display:inline-block;height:100%}
+.ap{background:var(--c5)}.in{background:var(--c4)}
+.ley{font-size:12px;color:var(--sub);display:flex;gap:6px;align-items:center;margin-top:4px}
+.ley i{width:12px;height:10px;border-radius:2px}
+table.amort{margin-top:12px;font-size:13px}
+@media (max-width:760px){
+  .cursos{order:2;margin:0;flex:1 1 100%}
+  .calc-grid{grid-template-columns:1fr}
+  .br{grid-template-columns:52px 1fr 96px}
 }
