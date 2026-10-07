@@ -5,6 +5,7 @@
    Contenido: datos/etapaN.js (window.CLASES) · Progreso: localStorage + Google Sheets
    ===================================================================== */
 
+const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
 const INTERVALOS = [1, 2, 4, 7, 15, 30]; // días de espera al llegar a la caja 1..6
 const TARJETAS_POR_SESION = 20;
@@ -627,6 +628,11 @@ function vistaConfig() {
       <label>Clave (TOKEN)<small>La misma que pusiste en Code.gs</small><input class="txt mono" id="cfg-token" type="password" value="${esc(S.config.token)}"></label>
       <div class="acciones"><button class="btn" data-act="cfg-guardar">Guardar y probar conexión</button><span id="cfg-msg"></span></div>
     </div>
+    ${S.config.url ? `<div class="card"><h3>📱 Vincular el celular u otro dispositivo</h3>
+      <p style="color:var(--sub)">Escanea este código con la cámara del celular: se abre el curso ya conectado a tu planilla, sin escribir nada.</p>
+      <div class="acciones"><button class="btn" data-act="qr">Mostrar código QR</button><button class="btn sec" data-act="copiar-link">Copiar link de vinculación</button></div>
+      <div id="qr" style="margin-top:16px"></div>
+      <p style="color:var(--rojo);font-size:12.5px;margin-top:10px">🔒 El QR y el link contienen tu clave: úsalos solo en tus dispositivos y no los compartas.</p></div>` : ''}
     <div class="card"><h3>Respaldo <span>${S.pendientes.length} cambio(s) sin sincronizar</span></h3>
       <div class="acciones" style="margin-top:0"><button class="btn sec" data-act="sync-ahora">⟳ Sincronizar ahora</button>
       <button class="btn sec" data-act="respaldo">⬇ Descargar respaldo</button>
@@ -695,6 +701,15 @@ document.addEventListener('click', e => {
     case 'tarjeta-tenia-razon': teniaRazon(); break;
     case 'cfg-guardar': guardarConfig(); break;
     case 'sync-ahora': sincronizar().then(render); break;
+    case 'qr': {
+      const caja = $('#qr'); caja.innerHTML = '';
+      if (!window.QRCode) { caja.textContent = 'No se pudo cargar el generador de QR (¿sin internet?). Usa "Copiar link".'; break; }
+      new QRCode(caja, { text: linkVinculacion(), width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+      break;
+    }
+    case 'copiar-link':
+      navigator.clipboard.writeText(linkVinculacion()).then(() => { el.textContent = '✓ Link copiado'; }, () => prompt('Copia este link:', linkVinculacion()));
+      break;
     case 'respaldo': {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }));
@@ -764,8 +779,29 @@ async function guardarConfig() {
   pintarSync();
 }
 
+/* ---------- Vincular dispositivos (QR / link con la conexión) ---------- */
+// La conexión viaja en el "#" del link: el navegador no lo envía a ningún servidor.
+function linkVinculacion() {
+  const datos = btoa(JSON.stringify({ u: S.config.url, t: S.config.token, n: S.config.nombre }));
+  return `${APP_ONLINE}#conectar=${encodeURIComponent(datos)}`;
+}
+function leerVinculacion() {
+  const m = location.hash.match(/^#conectar=(.+)$/);
+  if (!m) return false;
+  try {
+    const d = JSON.parse(atob(decodeURIComponent(m[1])));
+    if (d.u && d.t) { S.config.url = d.u; S.config.token = d.t; if (d.n) S.config.nombre = d.n; guardarLocal(); }
+  } catch (e) { /* link dañado: se ignora */ }
+  history.replaceState(null, '', location.pathname + '#/panel'); // borra la clave de la barra de direcciones
+  return true;
+}
+
 /* ---------- Inicio ---------- */
+const recienVinculado = leerVinculacion();
 window.addEventListener('hashchange', render);
 asegurarTarjetas();
 render();
-if (S.config.url) cargarDesdeSheets().then(() => { render(); sincronizar(); }).catch(e => { errorSync = e.message; pintarSync(); });
+if (S.config.url) cargarDesdeSheets().then(() => {
+  if (recienVinculado) enviarVocab(Object.values(S.vocab));
+  render(); sincronizar();
+}).catch(e => { errorSync = e.message; pintarSync(); });
