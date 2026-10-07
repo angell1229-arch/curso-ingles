@@ -5,6 +5,9 @@
    Contenido: datos/etapaN.js (window.CLASES) · Progreso: localStorage + Google Sheets
    ===================================================================== */
 
+// VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
+const APP_VERSION = '1.6.0';
+const APP_FECHA = '6 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
 const INTERVALOS = [1, 2, 4, 7, 15, 30]; // días de espera al llegar a la caja 1..6
@@ -283,6 +286,7 @@ function pintarSync() {
   else el.innerHTML = `<b class="ok">● Sincronizado</b>Google Sheets${S.ultimaSync ? ' · ' + fechaCorta(S.ultimaSync) : ''}`;
   const due = pendientesHoy().length;
   $('#badge').textContent = due ? due : '';
+  const ver = $('#version'); if (ver) ver.textContent = `v${APP_VERSION} · ${APP_FECHA}`;
 }
 
 /* =====================================================================
@@ -669,7 +673,8 @@ function vistaEscritos() {
     : '<div class="card"><div class="vacio">Todavía no hay escritos. Ve a la pestaña <b>Escritura</b> de tu clase.</div></div>'}`;
 }
 function vistaConfig() {
-  return `<div class="head"><div><h1>Configuración</h1><p>Conexión con Google Sheets y respaldo</p></div></div>
+  return `<div class="head"><div><h1>Configuración</h1><p>Conexión con Google Sheets y respaldo</p></div>
+    <span class="chip azul" style="font-size:13px">English Lab v${APP_VERSION} · ${APP_FECHA}</span></div>
   <div class="cfg">
     <div class="card cfg">
       <label>Tu nombre<input class="txt" id="cfg-nombre" value="${esc(S.config.nombre)}"></label>
