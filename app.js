@@ -47,13 +47,59 @@ function fechaCorta(iso) {
   const d = new Date(iso);
   return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' }) + ' · ' + d.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
 }
-function hablar(t) {
-  if (!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(t); u.lang = 'en-US'; u.rate = 0.9;
-  speechSynthesis.speak(u);
+/* ---------- Voz en inglés (Web Speech) ---------- */
+const HAY_VOZ = 'speechSynthesis' in window;
+// Orden de preferencia: voces neuronales/premium primero; las voces "de efecto" del Mac quedan al final
+const VOCES_BUENAS = [/natural/i, /neural/i, /premium/i, /enhanced|mejorad/i, /google us english/i,
+  /\b(ava|zoe|evan|nathan|noelle|joelle|samantha|allison|susan|aaron|nicky)\b/i, /google uk english/i];
+// voces "de efecto" y robóticas del Mac/iPhone (en inglés y con su nombre traducido al español): no se ofrecen
+const VOCES_ROBOTICAS = /(fred|albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|junior|kathy|organ|ralph|superstar|trinoids|whisper|wobble|zarvox|grandma|grandpa|rocko|shelley|eddy|flo\b|reed|sandy|noticias|burbuja|campana|órgano|organo|susurr|superestrella|violonchel|bufón|histéric|trastornad|tambale|abuel)/i;
+let VOCES = [];
+function puntajeVoz(v) {
+  let p = 0;
+  VOCES_BUENAS.forEach((r, i) => { if (r.test(v.name)) p += (VOCES_BUENAS.length - i) * 10; });
+  if (/en[-_]US/i.test(v.lang)) p += 5;
+  if (VOCES_ROBOTICAS.test(v.name)) p -= 100;
+  return p;
 }
+function cargarVoces() {
+  if (!HAY_VOZ) return;
+  const ingles = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang));
+  const buenas = ingles.filter(v => !VOCES_ROBOTICAS.test(v.name));
+  VOCES = (buenas.length ? buenas : ingles).sort((a, b) => puntajeVoz(b) - puntajeVoz(a));
+  pintarSelectorVoz();
+}
+const vozElegida = () => VOCES.find(v => v.name === S.config.voz) || VOCES[0] || null;
+let frasesVivas = []; // Safari descarta las frases que el recolector de basura libera antes de terminar
+function hablar(t) {
+  if (!HAY_VOZ) { alert('Este navegador no tiene voz. Prueba con Chrome o Safari actualizados.'); return; }
+  if (!VOCES.length) cargarVoces();
+  const v = vozElegida();
+  frasesVivas = String(t).split('|').map(s => s.trim()).filter(Boolean).map(parte => {
+    const u = new SpeechSynthesisUtterance(parte);
+    u.lang = v ? v.lang : 'en-US'; if (v) u.voice = v;
+    u.rate = Number(S.config.velocidad) || 0.95;
+    return u;
+  });
+  const decir = () => { speechSynthesis.resume(); frasesVivas.forEach(u => speechSynthesis.speak(u)); };
+  // Safari se traba si se cancela y habla en el mismo instante: solo cancelar si algo suena
+  if (speechSynthesis.speaking || speechSynthesis.pending) { speechSynthesis.cancel(); setTimeout(decir, 120); } else decir();
+}
+if (HAY_VOZ) {
+  cargarVoces();
+  if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', cargarVoces);
+  else speechSynthesis.onvoiceschanged = cargarVoces;
+}
+// "take – took – taken" → se dice en tres partes con pausa; "was / were" → "was or were"
+const formasVoz = s => String(s).split(/\s+–\s+/).map(f => f.replace(/\s*\/\s*/g, ' or ')).join('|');
 const voz = t => `<button class="voz" data-act="hablar" data-t="${esc(t)}" title="Escuchar">🔊</button>`;
+function pintarSelectorVoz() {
+  const sel = document.getElementById('cfg-voz'); if (!sel) return;
+  const actual = vozElegida();
+  sel.innerHTML = VOCES.length
+    ? VOCES.map((v, i) => `<option value="${esc(v.name)}" ${actual && v.name === actual.name ? 'selected' : ''}>${esc(v.name)} (${esc(v.lang)})${i === 0 ? ' ⭐ recomendada' : ''}</option>`).join('')
+    : '<option>Cargando voces…</option>';
+}
 const colorPct = p => p >= 80 ? 'var(--c4)' : p >= 50 ? 'var(--c3)' : 'var(--c1)';
 
 /* ---------- Estado (se guarda en este navegador y se sincroniza con Sheets) ---------- */
@@ -358,7 +404,7 @@ function tabVerbos(c) {
   <div class="acciones" style="margin:0 0 12px"><button class="btn sec" data-act="ocultar">👁 Ocultar / mostrar formas</button>
     <button class="btn sec" data-act="repaso-verbos">⚡ Practicar verbos</button></div>
   <div class="card"><table id="tverbos"><tr><th>Base</th><th>Pasado</th><th>Participio</th><th>Español</th><th>Ejemplo</th></tr>
-  ${c.verbos.map(v => `<tr><td><b>${esc(v.base)}</b>${voz(`${v.base}, ${v.pasado.replace('/', 'or')}, ${v.participio.replace('/', 'or')}`)}</td>
+  ${c.verbos.map(v => `<tr><td><b>${esc(v.base)}</b>${voz(formasVoz(`${v.base} – ${v.pasado} – ${v.participio}`))}</td>
     <td class="f" data-act="ver"><span>${esc(v.pasado)}</span></td><td class="f" data-act="ver"><span>${esc(v.participio)}</span></td>
     <td>${esc(v.es)}</td><td class="ej">${esc(v.ejemplo)}${voz(v.ejemplo)}</td></tr>`).join('')}</table></div>`;
 }
@@ -521,7 +567,7 @@ function vistaRepaso() {
     <div class="flash"><span class="caja chip">Caja ${Math.min(t.caja, 6)}</span><div class="etq">${etiqueta}</div>
       <div class="w">${esc(t.es)}</div>${campos}
       ${res ? `<div class="resultado ${res.ok ? 'bien' : 'mal'}">
-          ${res.ok ? '✓ ¡Correcto!' : res.casi ? '✗ ¡Casi! Revisa la ortografía:' : '✗ La respuesta es:'} <b class="mono">${esc(t.en)}</b>${voz(t.en.replace(/ – /g, ', ').replace(/\//g, 'or'))}
+          ${res.ok ? '✓ ¡Correcto!' : res.casi ? '✗ ¡Casi! Revisa la ortografía:' : '✗ La respuesta es:'} <b class="mono">${esc(t.en)}</b>${voz(formasVoz(t.en))}
           ${info.ejemplo ? `<div class="ej">${esc(info.ejemplo)}${voz(info.ejemplo)}</div>` : ''}</div>
         <div class="acciones"><button class="btn grande" data-act="tarjeta-sig" id="btn-sig">Siguiente → <small style="opacity:.7">(Enter)</small></button>
           ${!res.ok && !res.noSe ? `<button class="link" data-act="tarjeta-tenia-razon">Tenía razón (fue un error de tipeo)</button>` : ''}</div>`
@@ -598,7 +644,7 @@ function vistaVerbos() {
   ${filas.map(it => {
     const v = it.verbo, t = S.vocab[it.id], lib = desbloqueada(it.clase_id), tot = t ? t.aciertos + t.fallos : 0;
     return `<tr data-buscar="${esc((v.base + ' ' + v.pasado + ' ' + v.participio + ' ' + v.es).toLowerCase())}" style="${lib ? '' : 'opacity:.4'}">
-      <td><b>${esc(v.base)}</b>${voz(`${v.base}, ${v.pasado.replace('/', 'or')}, ${v.participio.replace('/', 'or')}`)}</td>
+      <td><b>${esc(v.base)}</b>${voz(formasVoz(`${v.base} – ${v.pasado} – ${v.participio}`))}</td>
       <td class="f mono" data-act="ver"><span>${esc(v.pasado)}</span></td><td class="f mono" data-act="ver"><span>${esc(v.participio)}</span></td>
       <td>${esc(v.es)}</td><td>${it.clase_id}</td><td>${t ? `<span class="chip">${Math.min(t.caja, 6)}</span>` : '🔒'}</td>
       <td>${tot ? `<span class="bar"><i style="width:${t.aciertos * 100 / tot}%;background:${colorPct(t.aciertos * 100 / tot)}"></i></span> <span class="mono" style="color:var(--sub)">${t.aciertos}/${tot}</span>` : '—'}</td></tr>`;
@@ -632,6 +678,17 @@ function vistaConfig() {
       <label>Clave (TOKEN)<small>La misma que pusiste en Code.gs</small><input class="txt mono" id="cfg-token" type="password" value="${esc(S.config.token)}"></label>
       <div class="acciones"><button class="btn" data-act="cfg-guardar">Guardar y probar conexión</button><span id="cfg-msg"></span></div>
     </div>
+    <div class="card cfg"><h3>🔊 Voz en inglés</h3>
+      <label>Voz<small>La ⭐ es la más natural que encontré en este dispositivo. Cada celular y computador tiene voces distintas.</small>
+        <select class="txt" id="cfg-voz"></select></label>
+      <label>Velocidad<select class="txt" id="cfg-velocidad">
+        ${[['1', 'Normal'], ['0.95', 'Un poco más lenta (recomendada)'], ['0.8', 'Lenta'], ['0.65', 'Muy lenta']].map(([v, n]) =>
+          `<option value="${v}" ${String(S.config.velocidad || '0.95') === v ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+      <div class="acciones" style="margin-top:0"><button class="btn sec" data-act="hablar" data-t="I usually take a break at eleven.|take|took|taken">▶ Probar voz</button></div>
+      <p style="color:var(--sub);font-size:13px">💡 <b>¿Suena robótica?</b> Descarga una voz mejor y aparecerá aquí:<br>
+        <b>iPhone:</b> Ajustes → Accesibilidad → Contenido leído → Voces → Inglés (EE. UU.) → <i>Ava</i> o <i>Zoe</i> (Premium/Mejorada).<br>
+        <b>Mac:</b> Ajustes del Sistema → Accesibilidad → Contenido leído → Voz del sistema → Gestionar voces → <i>Ava (Premium)</i>.<br>
+        <b>iPhone en silencio:</b> si el interruptor lateral está en silencio, Safari no habla.</p></div>
     ${S.config.url ? `<div class="card"><h3>📱 Vincular el celular u otro dispositivo</h3>
       <p style="color:var(--sub)">Escanea este código con la cámara del celular: se abre el curso ya conectado a tu planilla, sin escribir nada.
         <br><b>iPhone, app anclada al inicio:</b> no comparte datos con Safari. En Safari (ya conectado) toca <i>Copiar link de vinculación</i>, abre la app anclada y toca <i>📋 Pegar link y conectar</i>.</p>
@@ -657,6 +714,7 @@ function render() {
     repaso: vistaRepaso, verbos: vistaVerbos, pruebas: vistaPruebas, escritos: vistaEscritos, config: vistaConfig,
   };
   $('#main').innerHTML = (vistas[ruta] || vistaPanel)();
+  pintarSelectorVoz();
   pintarSync();
   // foco automático
   const sig = $('#btn-sig');
@@ -765,6 +823,10 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('change', e => {
+  if (e.target.id === 'cfg-voz' || e.target.id === 'cfg-velocidad') {
+    S.config[e.target.id === 'cfg-voz' ? 'voz' : 'velocidad'] = e.target.value; guardarLocal();
+    hablar('take|took|taken'); return;
+  }
   if (e.target.id !== 'importar' || !e.target.files[0]) return;
   e.target.files[0].text().then(t => {
     try { S = Object.assign(estadoVacio(), JSON.parse(t)); guardarLocal(); alert('Respaldo importado ✓'); render(); }

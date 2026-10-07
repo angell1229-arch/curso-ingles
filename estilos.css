@@ -124,8 +124,8 @@ a.clase:hover{box-shadow:0 4px 14px rgba(31,35,40,.08)}
 .item.bien{border-color:#4ac26b;background:#f6fff8}
 .item.mal{border-color:#ff8182;background:#fffafa}
 .fb{margin-top:8px;font-size:13.5px}
-input.txt,textarea.txt{width:100%;padding:10px 12px;border:1px solid var(--borde);border-radius:8px;background:#fff;outline:none}
-input.txt:focus,textarea.txt:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(9,105,218,.15)}
+input.txt,textarea.txt,select.txt{width:100%;padding:10px 12px;border:1px solid var(--borde);border-radius:8px;background:#fff;outline:none}
+input.txt:focus,textarea.txt:focus,select.txt:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(9,105,218,.15)}
 textarea.txt{min-height:180px;resize:vertical;line-height:1.6}
 .ops{display:flex;gap:8px;flex-wrap:wrap}
 .op{padding:8px 16px;border:1px solid var(--borde);border-radius:8px;background:#fff;cursor:pointer;font-weight:500}
