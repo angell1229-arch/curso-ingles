@@ -1,4 +1,4 @@
-# Saber Lab — English + Finanzas
+# Saber Lab — English · Finanzas · Norma RIC
 
 App: https://angell1229-arch.github.io/curso-ingles/
 

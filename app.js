@@ -1,14 +1,15 @@
 'use strict';
 
 /* =====================================================================
-   Saber Lab — plataforma de cursos: English (B1) y Finanzas
-   Contenido: datos/etapaN.js (window.CLASES, inglés, ids 1–12) y datos/finanzas_etapaN.js (window.CLASES_FIN, ids 101–120)
+   Saber Lab — plataforma de cursos: English (B1), Finanzas y Norma eléctrica RIC
+   Contenido: datos/etapaN.js (window.CLASES, inglés, ids 1–12), datos/finanzas_etapaN.js (window.CLASES_FIN, ids 101–120)
+   y datos/ric_etapaN.js (window.CLASES_RIC, ids 201–222)
    Progreso: localStorage + Google Sheets (misma planilla para ambos cursos)
    ===================================================================== */
 
 // VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
-const APP_VERSION = '2.0.0';
-const APP_FECHA = '6 oct 2026';
+const APP_VERSION = '2.1.0';
+const APP_FECHA = '7 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
 const INTERVALOS = [1, 2, 4, 7, 15, 30]; // días de espera al llegar a la caja 1..6
@@ -53,6 +54,31 @@ const TEMARIO_FIN = [
   { id: 119, etapa: 6, titulo: 'Construir un portafolio', subtitulo: 'Asignación de activos · rebalanceo · costos' },
   { id: 120, etapa: 6, titulo: 'Psicología del inversionista + proyecto final', subtitulo: 'Sesgos · tu informe de análisis' },
 ];
+const TEMARIO_RIC = [
+  { id: 201, etapa: 1, titulo: 'Marco legal: DS 8/2019 y cómo funciona la norma', subtitulo: 'Ley · DS 8 · pliegos · licencias' },
+  { id: 202, etapa: 1, titulo: 'RIC N°01 · Empalmes', subtitulo: 'Capacidad · ubicación · edificios · protecciones' },
+  { id: 203, etapa: 1, titulo: 'RIC N°02 · Tableros eléctricos', subtitulo: 'Clasificación · IP · espacios · conexionado' },
+  { id: 204, etapa: 2, titulo: 'RIC N°03 · Alimentadores y demanda', subtitulo: 'Factores de demanda · caída de tensión' },
+  { id: 205, etapa: 2, titulo: 'RIC N°04 (I) · Conductores', subtitulo: 'Tipos · secciones · capacidad de corriente · colores' },
+  { id: 206, etapa: 2, titulo: 'RIC N°04 (II) · Canalizaciones', subtitulo: 'Ductos · bandejas · ocupación · montaje' },
+  { id: 207, etapa: 3, titulo: 'RIC N°05 · Protección contra tensiones peligrosas', subtitulo: 'Contactos directos e indirectos · diferenciales' },
+  { id: 208, etapa: 3, titulo: 'RIC N°06 · Puesta a tierra', subtitulo: 'Sistemas TN/TT/IT · electrodos · medición' },
+  { id: 209, etapa: 3, titulo: 'RIC N°10 · Instalaciones de uso general', subtitulo: 'Viviendas · circuitos · enchufes · alumbrado' },
+  { id: 210, etapa: 4, titulo: 'RIC N°07 · Instalaciones de equipos', subtitulo: 'Motores · condensadores · climatización' },
+  { id: 211, etapa: 4, titulo: 'RIC N°08 · Sistemas de emergencia', subtitulo: 'Respaldo · iluminación de seguridad' },
+  { id: 212, etapa: 4, titulo: 'RIC N°09 · Sistemas de autogeneración', subtitulo: 'Solar · conexión a la red · protecciones' },
+  { id: 213, etapa: 4, titulo: 'RIC N°15 · Recarga de vehículos eléctricos', subtitulo: 'Modos de carga · empalme · protecciones' },
+  { id: 214, etapa: 4, titulo: 'RIC N°14 y N°16 · Eficiencia y subsistemas', subtitulo: 'Eficiencia energética · subsistemas de distribución' },
+  { id: 215, etapa: 5, titulo: 'RIC N°11 (I) · Recintos especiales', subtitulo: 'Asistenciales · educacionales · húmedos · baños' },
+  { id: 216, etapa: 5, titulo: 'RIC N°11 (II) · Equipos y construcciones especiales', subtitulo: 'Grúas · ascensores · data center · agrícolas · minería' },
+  { id: 217, etapa: 5, titulo: 'RIC N°11 (III) · Provisionales y lugares públicos', subtitulo: 'Faenas · eventos · teatros · letreros · deportivos' },
+  { id: 218, etapa: 5, titulo: 'RIC N°12 · Ambientes explosivos', subtitulo: 'Clasificación de áreas · equipos Ex' },
+  { id: 219, etapa: 5, titulo: 'RIC N°13 · Subestaciones y salas eléctricas', subtitulo: 'Intemperie · interior · bóvedas · tierra' },
+  { id: 220, etapa: 6, titulo: 'RIC N°18 · Presentación de proyectos', subtitulo: 'Planos · memoria explicativa · cuadros de carga' },
+  { id: 221, etapa: 6, titulo: 'RIC N°19 · Puesta en servicio', subtitulo: 'Inspección · pruebas y ensayos · declaración' },
+  { id: 222, etapa: 6, titulo: 'RIC N°17 · Operación y mantenimiento + examen final', subtitulo: 'Programa de seguridad · caso integrado' },
+];
+const ETAPAS_RIC = { 1: 'Marco legal, empalmes y tableros', 2: 'Dimensionar: demanda, conductores y canalizaciones', 3: 'Seguridad: protecciones, tierra y viviendas', 4: 'Equipos y sistemas', 5: 'Instalaciones especiales y media tensión', 6: 'Proyecto, puesta en servicio y mantenimiento' };
 const ETAPAS_FIN = { 1: 'El dinero y el tiempo', 2: 'Finanzas personales', 3: 'Economía y mercados', 4: 'Finanzas de empresas', 5: 'Análisis de empresas en bolsa', 6: 'Portafolio y riesgo' };
 const TIPOS = { verbo: 'Verbo', palabra: 'Palabra', phrasal: 'Phrasal verb', combinacion: 'Combinación',
   completar: 'Completar', traducir: 'Traducir al inglés', corregir: 'Corregir el error', elegir: 'Elegir', orden: 'Ordenar', escritura: 'Escritura',
@@ -62,13 +88,14 @@ const TIPOS = { verbo: 'Verbo', palabra: 'Palabra', phrasal: 'Phrasal verb', com
 const CURSOS = {
   ingles: { id: 'ingles', nombre: 'English', icono: '🗣️', base: 1, clases: window.CLASES || [], temario: TEMARIO_EN, etapas: ETAPAS_EN },
   finanzas: { id: 'finanzas', nombre: 'Finanzas', icono: '📈', base: 101, clases: window.CLASES_FIN || [], temario: TEMARIO_FIN, etapas: ETAPAS_FIN },
+  ric: { id: 'ric', nombre: 'Norma RIC', corto: 'RIC', icono: '⚡', base: 201, clases: window.CLASES_RIC || [], temario: TEMARIO_RIC, etapas: ETAPAS_RIC },
 };
-const CLASES = [...CURSOS.ingles.clases, ...CURSOS.finanzas.clases];
-const TEMARIOS = [...TEMARIO_EN, ...TEMARIO_FIN];
-const cursoDe = id => Number(id) >= 100 ? CURSOS.finanzas : CURSOS.ingles;
+const CLASES = [...CURSOS.ingles.clases, ...CURSOS.finanzas.clases, ...CURSOS.ric.clases];
+const TEMARIOS = [...TEMARIO_EN, ...TEMARIO_FIN, ...TEMARIO_RIC];
+const cursoDe = id => Number(id) >= 200 ? CURSOS.ric : Number(id) >= 100 ? CURSOS.finanzas : CURSOS.ingles;
 const nc = id => id - cursoDe(id).base + 1; // número de la clase dentro de su curso
 let CUR = CURSOS.ingles; // curso activo (se lee de la configuración al cargar)
-const esFin = () => CUR.id === 'finanzas';
+const esConceptos = () => CUR.id !== 'ingles'; // cursos de conceptos (Finanzas, RIC): términos, fórmulas, calculadoras
 const claseDatos = id => CLASES.find(c => c.id === id);
 const claseMeta = id => TEMARIOS.find(c => c.id === id);
 
@@ -160,7 +187,8 @@ const claseActual = () => CUR.temario.find(c => desbloqueada(c.id) && !aprobada(
 function itemsDeClase(c) {
   const out = [];
   if (c.terminos) { // finanzas: términos (se escribe el término a partir de su definición) y fórmulas (autoevaluación)
-    c.terminos.forEach(w => out.push({ id: 'f:' + w.es, tipo: 'termino', en: w.en, es: w.es, definicion: w.definicion, ejemplo: w.ejemplo }));
+    const pre = c.id >= 200 ? 'r:' : 'f:'; // prefijo por curso para que no choquen términos iguales
+    c.terminos.forEach(w => out.push({ id: pre + w.es, tipo: 'termino', en: w.en, es: w.es, definicion: w.definicion, ejemplo: w.ejemplo }));
     c.teoria.forEach((g, k) => { if (g.formula) out.push({ id: `fx:${c.id}:${k}`, tipo: 'formula', es: g.tema, en: g.formula, ejemplo: (g.ejemplos || [])[0] || '' }); });
     return out;
   }
@@ -380,7 +408,7 @@ function pintarSync() {
 function vistaPanel() {
   const actual = claseActual(), due = pendientesHoy().length, r = racha(), ts = tarjetas();
   const aprendidas = ts.filter(t => t.caja >= 4).length;
-  const vs = esFin() ? ts : ts.filter(t => t.tipo === 'verbo');
+  const vs = esConceptos() ? ts : ts.filter(t => t.tipo === 'verbo');
   const ac = vs.reduce((s, t) => s + t.aciertos, 0), fa = vs.reduce((s, t) => s + t.fallos, 0);
   const prec = ac + fa ? Math.round(ac * 100 / (ac + fa)) : null;
   const nAprob = CUR.temario.filter(c => aprobada(c.id)).length;
@@ -405,8 +433,8 @@ function vistaPanel() {
   <div class="head"><div><h1>Hola, ${esc(S.config.nombre || '')} 👋</h1><p>${sub}</p></div>${cta}</div>
   <div class="kpis">
     <div class="k"><div class="l">Racha</div><div class="v">${r.actual} <small>día${r.actual === 1 ? '' : 's'}</small></div><div class="d">Récord: ${r.record} día${r.record === 1 ? '' : 's'}</div></div>
-    <div class="k"><div class="l">${esFin() ? 'Conceptos aprendidos' : 'Palabras aprendidas'} <span title="Tarjetas en caja 4 o más: ya las recuerdas después de una semana">ⓘ</span></div><div class="v">${aprendidas} <small>/ ${totalTarjetas()}</small></div><div class="d">${ts.length} en tu mazo · ${due} para hoy</div></div>
-    <div class="k"><div class="l">${esFin() ? 'Precisión en el repaso' : 'Precisión en verbos'}</div><div class="v">${prec ?? '—'}<small>${prec !== null ? '%' : ''}</small></div><div class="d" style="color:${prec === null ? 'var(--sub)' : colorPct(prec)}">${ac + fa ? `en ${ac + fa} respuestas` : 'Aún sin respuestas'}</div></div>
+    <div class="k"><div class="l">${esConceptos() ? 'Conceptos aprendidos' : 'Palabras aprendidas'} <span title="Tarjetas en caja 4 o más: ya las recuerdas después de una semana">ⓘ</span></div><div class="v">${aprendidas} <small>/ ${totalTarjetas()}</small></div><div class="d">${ts.length} en tu mazo · ${due} para hoy</div></div>
+    <div class="k"><div class="l">${esConceptos() ? 'Precisión en el repaso' : 'Precisión en verbos'}</div><div class="v">${prec ?? '—'}<small>${prec !== null ? '%' : ''}</small></div><div class="d" style="color:${prec === null ? 'var(--sub)' : colorPct(prec)}">${ac + fa ? `en ${ac + fa} respuestas` : 'Aún sin respuestas'}</div></div>
     <div class="k"><div class="l">Clases aprobadas</div><div class="v">${nAprob} <small>/ ${CUR.temario.length}</small></div><div class="d" style="color:var(--amarillo)">${actual && claseDatos(actual.id) ? `Prueba clase ${nc(actual.id)} disponible` : ''}</div></div>
   </div>
   <div class="grid2">
@@ -414,12 +442,12 @@ function vistaPanel() {
       ${ts.length ? `<div class="leit">${cajas.map((n, i) => `<div><b>${n}</b><i style="height:${Math.round(n / maxCaja * 72)}%;background:var(--c${i + 1})"></i><small>${nombresCaja[i]}</small></div>`).join('')}</div>`
         : `<div class="vacio">Abre la clase 1 para empezar a llenar tu mazo.</div>`}
     </div>
-    <div class="card"><h3>Lo que más fallas <span>${esFin() ? 'conceptos y fórmulas' : 'verbos y palabras'}</span></h3>
-      ${fallos.length ? `<table><tr><th>${esFin() ? 'Concepto' : 'Palabra'}</th><th>Tu respuesta</th><th>${esFin() ? 'En inglés' : 'Correcto'}</th><th>Aciertos</th></tr>
+    <div class="card"><h3>Lo que más fallas <span>${esConceptos() ? 'conceptos y fórmulas' : 'verbos y palabras'}</span></h3>
+      ${fallos.length ? `<table><tr><th>${esConceptos() ? 'Concepto' : 'Palabra'}</th><th>Tu respuesta</th><th>${esConceptos() ? 'En inglés' : 'Correcto'}</th><th>Aciertos</th></tr>
         ${fallos.map(t => { const p = Math.round(t.aciertos * 100 / (t.aciertos + t.fallos)); return `<tr>
           <td>${esc(t.es)}</td><td class="mono bad">${esc(t.ultimo_error || '—')}</td><td class="mono ok">${esc(t.en)}</td>
           <td><span class="bar"><i style="width:${p}%;background:${colorPct(p)}"></i></span></td></tr>`; }).join('')}</table>`
-        : `<div class="vacio">Aquí aparecerán ${esFin() ? 'los conceptos' : 'los verbos y palabras'} que más se te olvidan.</div>`}
+        : `<div class="vacio">Aquí aparecerán ${esConceptos() ? 'los conceptos' : 'los verbos y palabras'} que más se te olvidan.</div>`}
     </div>
     <div class="card"><h3>Constancia (todos los cursos) — 18 semanas <span>${nDias} día${nDias === 1 ? '' : 's'} estudiado${nDias === 1 ? '' : 's'}</span></h3>
       <div class="heat">${heatmap()}</div></div>
@@ -551,7 +579,7 @@ function tabEscritura(c) {
   </div>`;
 }
 
-/* ---------- Clase de Finanzas: conceptos, términos y calculadoras ---------- */
+/* ---------- Clases de conceptos (Finanzas y RIC): teoría, términos y calculadoras ---------- */
 function tabTeoria(c) {
   return `<div class="gram">${c.teoria.map(g => `<div class="card"><h4>${esc(g.tema)}</h4><p>${esc(g.explicacion)}</p>
     ${g.formula ? `<pre class="formula">${esc(g.formula)}</pre>` : ''}
@@ -641,6 +669,57 @@ const CALCS = {
           <p class="nota-calc">Fíjate: en las primeras cuotas pagas más interés que capital. La CAE oficial la informa la institución; esta es una estimación con los datos que ingreses.</p>`;
     },
   },
+  potencia_electrica: {
+    titulo: 'Potencia y corriente (mono y trifásico)', desc: 'S = V·I · P = V·I·cos φ · trifásico con √3. Y al revés: qué corriente toma una carga.',
+    campos: [['fases', 'Fases (1 o 3)', 3], ['v', 'Tensión (V): 220 mono / 380 tri', 380], ['i', 'Corriente (A)', 20], ['fp', 'Factor de potencia cos φ', 0.9], ['p', 'Potencia de una carga (kW) → corriente', 5]],
+    calc: v => {
+      const k = v.fases === 3 ? Math.sqrt(3) : 1, fp = Math.min(Math.max(v.fp || 1, 0.01), 1);
+      const S = k * v.v * v.i / 1000, P = S * fp, Q = Math.sqrt(Math.max(S * S - P * P, 0));
+      const I = v.v ? v.p * 1000 / (k * v.v * fp) : 0;
+      return fila(`Potencia aparente S (${v.fases === 3 ? '√3 × ' : ''}V × I)`, `${fmtNum(S, 2)} kVA`, true) + fila('Potencia activa P (S × cos φ)', `${fmtNum(P, 2)} kW`, true)
+        + fila('Potencia reactiva Q', `${fmtNum(Q, 2)} kvar`) + fila(`Corriente que toma una carga de ${fmtNum(v.p, 2)} kW`, `${fmtNum(I, 1)} A`, true)
+        + `<p class="nota-calc">En BT en Chile: 220 V entre fase y neutro (monofásico) y 380 V entre fases (trifásico), 50 Hz.</p>`;
+    },
+  },
+  empalme: {
+    titulo: 'Empalme en baja tensión (RIC N°01)', desc: 'Potencia del empalme según el anexo 1.3, regla del punto 5.3, poder de corte (8.2) y reserva de superficie (anexo 1.4).',
+    campos: [['fases', 'Fases (1 o 3)', 1], ['in', 'Interruptor del empalme (A)', 25], ['pinst', 'Potencia instalada declarada (kW)', 6], ['icc', 'Icc prevista en el punto (kA)', 4.5], ['x', 'Muro de medidores: ancho X (m)', 3], ['y', 'Muro de medidores: alto Y (m)', 2]],
+    calc: v => {
+      const MONO = [[6, 1, 'A-6/S-6'], [10, 2, 'A-6/S-6'], [16, 3, 'A-6/S-6'], [20, 4, 'A-6/S-6'], [25, 5, 'A-6/S-6'], [30, 6, 'A-9/S-9'], [32, 6.5, 'A-9/S-9'], [35, 7, 'A-9/S-9'], [40, 8, 'A-9/S-9'], [50, 10, 'A-16/S-16'], [63, 13, 'A-16/S-16']];
+      const TRI = [[6, 3.6], [10, 6], [16, 9.7], [20, 12], [25, 15], [30, 18], [32, 19], [35, 21], [40, 24], [50, 30], [63, 38], [80, 48], [90, 55], [100, 61], [125, 76], [150, 91], [160, 97], [200, 122], [225, 137], [250, 153], [320, 195], [350, 214], [400, 244], [450, 275], [500, 306], [630, 385], [800, 489], [1000, 612]];
+      const tri = v.fases === 3, V = tri ? 380 : 220, S = (tri ? Math.sqrt(3) : 1) * V * v.in / 1000;
+      const tabla = tri ? TRI : MONO, f = tabla.find(r => r[0] === v.in);
+      const ok = f ? f[1] <= v.pinst + 1e-9 : null;
+      const mayor = [...tabla].reverse().find(r => r[1] <= v.pinst + 1e-9);
+      return fila(`Potencia máxima del empalme (${tri ? '√3 × 380' : '220'} × ${v.in} A)`, `${fmtNum(S, 2)} kVA`, true)
+        + fila('Potencia a contratar (anexo 1.3)', f ? `${fmtNum(f[1], 1)} kW${f[2] ? ' · tipo ' + f[2] : ''}` : 'no es un valor normalizado del anexo 1.3')
+        + fila('¿Cumple el punto 5.3? (empalme ≤ potencia instalada)', ok === null ? '—' : ok ? '✓ cumple' : '✗ el empalme supera la potencia instalada')
+        + fila('Mayor empalme permitido para esa potencia instalada', mayor ? `${mayor[0]} A (${fmtNum(mayor[1], 1)} kW)` : 'menor al mínimo normalizado')
+        + fila('Poder de corte mínimo de la protección (1,2 × Icc)', `${fmtNum(1.2 * v.icc, 2)} kA`, true)
+        + fila('Superficie de reserva en recinto o armario (0,15 × X × Y)', `${fmtNum(0.15 * v.x * v.y, 2)} m²`)
+        + `<p class="nota-calc">Monofásico hasta 40 A: tarifa BT-1; 50 y 63 A: tarifas residenciales distintas a BT-1. La potencia a contratar es ≈ 91 % de la potencia máxima en kVA.</p>`;
+    },
+  },
+  tablero: {
+    titulo: 'Chequeo de un tablero (RIC N°02)', desc: 'Ingresa los datos de tu tablero y revisa qué exige el pliego.',
+    campos: [['circ', 'N° de circuitos', 12], ['inom', 'Corriente nominal del tablero (A)', 40], ['dom', 'Domiciliario (1 = sí, 0 = no)', 1], ['dist', 'Distancia al medidor del empalme (m)', 10], ['ntd', 'N° de tableros de distribución', 1], ['ind', 'Diferencial: In (A)', 40], ['suma', 'Suma de las In de los automáticos que dependen de él (A)', 36], ['ubic', 'Ubicación: 1 interior · 2 exterior bajo techo · 3 intemperie · 4 mojado', 1]],
+    calc: v => {
+      const si = '✓', no = '✗', req = 'Exigido';
+      const ipTxt = { 1: 'IP 41 mínimo (6.1.21.2)', 2: 'IP 44 mínimo (6.1.21.3)', 3: 'IP 54 mínimo y entradas por abajo (6.1.21.3 y .6)', 4: 'IP X4 mínimo y 6,5 mm de la pared (6.1.21.4-.5)' }[Math.round(v.ubic)] || '—';
+      const tg = v.ntd > 1 || v.dist > 30;
+      return fila('Grado IP', ipTxt, true)
+        + fila('Espacios de reserva (25 % por servicio, 6.1.16.3)', `${Math.ceil(v.circ * 0.25)} como mínimo`, true)
+        + fila('Circuitos por protección general (máx. 25, 6.6.1)', v.circ <= 25 ? `${si} ${v.circ} circuitos` : `${no} ${v.circ}: divide en más protecciones generales`)
+        + fila('Interruptor general omnipolar (6.6.2)', v.dom && v.circ <= 3 ? 'No exigido (domiciliario ≤ 3 circuitos)' : req)
+        + fila('Luces piloto por fase (6.2.14)', v.dom && v.circ <= 3 ? 'No exigidas (domiciliario ≤ 3 circuitos)' : req)
+        + fila('Bandejas portaconductores ≤ 50 % y regletas (6.1.16.1 y 6.2.12)', v.circ < 8 ? 'No exigidas (menos de 8 circuitos)' : req)
+        + fila('Instrumentos de V e I por fase (6.2.13)', v.inom >= 100 ? req : 'No exigidos (menos de 100 A)')
+        + fila('Tablero general (6.5.1-6.5.2)', tg ? `${req}: ${v.ntd > 1 ? 'hay más de un tablero de distribución' : 'el tablero está a más de 30 m del medidor'}` : 'No exigido')
+        + fila('Diferencial protegido por la suma aguas abajo (6.2.6)', v.suma <= v.ind ? `${si} ${fmtNum(v.suma)} A ≤ ${fmtNum(v.ind)} A` : `${no} ${fmtNum(v.suma)} A > ${fmtNum(v.ind)} A: necesita un automático aguas arriba de ≤ ${fmtNum(v.ind)} A`, true)
+        + fila('Verificaciones de diseño y rutina (6.10)', v.inom >= 1500 ? 'Según IEC 61439' : v.inom > 100 ? 'Según anexo 2.3 del RIC N°02' : 'Pruebas básicas (continuidad, aislación, diferenciales)')
+        + fila('Altura de los dispositivos de comando (6.1.22)', 'Entre 0,45 m y 2,0 m del piso terminado');
+    },
+  },
 };
 function calcHTML(k) {
   const c = CALCS[k]; if (!c) return '';
@@ -655,8 +734,8 @@ function pintarCalc(k) {
 }
 function vistaGlosario() {
   asegurarTarjetas();
-  const filas = Object.values(INDICE).filter(it => it.tipo === 'termino' && cursoDe(it.clase_id) === CURSOS.finanzas);
-  return `<div class="head"><div><h1>📖 Glosario de Finanzas</h1><p>${filas.length} términos hasta ahora, en español e inglés · los de clases bloqueadas aparecen atenuados</p></div>
+  const filas = Object.values(INDICE).filter(it => it.tipo === 'termino' && cursoDe(it.clase_id) === CUR);
+  return `<div class="head"><div><h1>📖 Glosario · ${CUR.nombre}</h1><p>${filas.length} términos hasta ahora, en español e inglés · los de clases bloqueadas aparecen atenuados</p></div>
     <button class="btn" data-act="repaso-verbos">📖 Practicar 20 al azar</button></div>
   <div class="acciones" style="margin:0 0 12px"><input class="txt" id="buscar" placeholder="Buscar término en español o inglés…" style="max-width:340px"></div>
   <div class="card"><table id="tverbos"><tr><th>Español</th><th>Inglés</th><th>Definición</th><th>Clase</th><th>Caja</th></tr>
@@ -749,11 +828,11 @@ let R = null;
 // modo: 'hoy' (pendientes) · 'verbos' (verbos al azar) · 'clase' (todas las tarjetas de una clase, para preparar la prueba)
 function iniciarRepaso(modo, claseId) {
   asegurarTarjetas();
-  const ids = modo === 'verbos' ? barajar(tarjetas().filter(t => esFin() || t.tipo === 'verbo')).slice(0, TARJETAS_POR_SESION).map(t => t.id)
+  const ids = modo === 'verbos' ? barajar(tarjetas().filter(t => esConceptos() || t.tipo === 'verbo')).slice(0, TARJETAS_POR_SESION).map(t => t.id)
     : modo === 'clase' ? barajar(tarjetas().filter(t => t.clase_id === claseId)).sort((a, b) => a.caja - b.caja).slice(0, TARJETAS_POR_SESION).map(t => t.id)
     : barajar(pendientesHoy()).sort((a, b) => a.caja - b.caja).slice(0, TARJETAS_POR_SESION).map(t => t.id);
   // 🎧 modo escuchar: ~1 de cada 3 palabras ya conocidas (caja ≥ 2) se dicta en vez de mostrarse en español
-  const escuchar = new Set(HAY_VOZ && !esFin() ? ids.filter(id => S.vocab[id].tipo !== 'verbo' && S.vocab[id].caja >= 2 && Math.random() < 0.35) : []);
+  const escuchar = new Set(HAY_VOZ && !esConceptos() ? ids.filter(id => S.vocab[id].tipo !== 'verbo' && S.vocab[id].caja >= 2 && Math.random() < 0.35) : []);
   R = { cola: ids, pos: 0, modo, claseId, res: null, primeros: {}, reencolados: new Set(), snap: null, fin: null, escuchar, sonado: -1, mostrar: false };
   if (location.hash !== '#/repaso') location.hash = '#/repaso'; else render();
 }
@@ -769,8 +848,8 @@ function vistaRepaso() {
       <p style="color:var(--sub)">${due ? `Sesiones de hasta ${TARJETAS_POR_SESION} tarjetas. Primero las más difíciles.` : 'Vuelve mañana o sigue avanzando con tu clase. Si quieres, practica igual.'}</p>
       <div class="acciones">${due ? `<button class="btn grande" data-act="repaso-iniciar">↻ Empezar repaso</button>` : ''}
         ${claseActual() && claseDatos(claseActual().id) ? `<button class="btn sec" data-act="repaso-clase" data-id="${claseActual().id}">📘 Practicar clase ${nc(claseActual().id)}</button>` : ''}
-        <button class="btn sec" data-act="repaso-verbos">${esFin() ? '📖 Practicar conceptos al azar' : '⚡ Practicar verbos al azar'}</button></div>
-      <p style="color:var(--sub);font-size:13px;margin-top:12px">Las tarjetas nuevas entran de a ${NUEVAS_POR_DIA} por día para no saturarte. ${esFin()
+        <button class="btn sec" data-act="repaso-verbos">${esConceptos() ? '📖 Practicar conceptos al azar' : '⚡ Practicar verbos al azar'}</button></div>
+      <p style="color:var(--sub);font-size:13px;margin-top:12px">Las tarjetas nuevas entran de a ${NUEVAS_POR_DIA} por día para no saturarte. ${esConceptos()
         ? '📖 Verás una definición y escribes el término (en español o inglés). 🧮 En las fórmulas, piensa la respuesta, muéstrala y evalúate con honestidad.'
         : '🎧 Algunas palabras que ya conoces te las dictará la voz.'}</p></div>`;
   }
@@ -790,7 +869,7 @@ function vistaRepaso() {
   const oir = R.escuchar.has(id);
   const etiqueta = t.tipo === 'verbo' ? 'Verbo · escribe las 3 formas' : t.tipo === 'termino' ? '📖 ¿Qué término es?' : t.tipo === 'formula' ? '🧮 ¿Cuál es la fórmula o regla?'
     : oir ? '🎧 Escucha y escribe lo que oyes' : `${TIPOS[t.tipo]} · escríbelo en inglés`;
-  const titulo = R.modo === 'verbos' ? (esFin() ? 'Práctica de conceptos' : 'Práctica de verbos') : R.modo === 'clase' ? `Práctica · Clase ${nc(R.claseId)}` : 'Repaso de hoy';
+  const titulo = R.modo === 'verbos' ? (esConceptos() ? 'Práctica de conceptos' : 'Práctica de verbos') : R.modo === 'clase' ? `Práctica · Clase ${nc(R.claseId)}` : 'Repaso de hoy';
   const enunciado = t.tipo === 'termino' ? `<div class="w def">${esc(info.definicion)}</div>` : `<div class="w">${esc(t.es)}</div>`;
   const respuestaOk = t.tipo === 'termino' ? `${esc(info.es)} · <i>${esc(info.en)}</i>${voz(info.en.replace(/\s*\(.*\)/, ''))}` : t.tipo === 'formula' ? '' : `${esc(t.en)}${voz(formasVoz(t.en))}`;
   return `<div class="tarjeta">
@@ -865,7 +944,7 @@ function siguienteTarjeta() {
   R.pos++; R.res = null; R.mostrar = false;
   if (R.pos >= R.cola.length) {
     const ids = Object.keys(R.primeros), ok = ids.filter(i => R.primeros[i].ok).length;
-    const etiquetaT = i => esFin() ? S.vocab[i].es : S.vocab[i].en;
+    const etiquetaT = i => esConceptos() ? S.vocab[i].es : S.vocab[i].en;
     const errores = ids.filter(i => !R.primeros[i].ok).map(etiquetaT);
     registrarIntento({ clase_id: CUR.base - 1, titulo: `${CUR.nombre} · ${R.modo === 'verbos' ? 'Práctica al azar' : R.modo === 'clase' ? 'Práctica de clase' : 'Repaso'}`, tipo: 'repaso',
       puntaje: ids.length ? Math.round(ok * 100 / ids.length) : 0, correctas: ok, total: ids.length,
@@ -879,7 +958,7 @@ function siguienteTarjeta() {
 
 /* ---------- Otras páginas ---------- */
 function vistaVerbos() {
-  if (esFin()) return vistaGlosario();
+  if (esConceptos()) return vistaGlosario();
   asegurarTarjetas();
   const filas = Object.values(INDICE).filter(it => it.tipo === 'verbo');
   return `<div class="head"><div><h1>Verbos</h1><p>${filas.length} verbos en el curso hasta ahora · los de clases bloqueadas aparecen atenuados</p></div>
@@ -908,11 +987,11 @@ function vistaPruebas() {
 }
 function vistaEscritos() {
   const es = S.intentos.filter(i => i.escritura && cursoDe(i.clase_id) === CUR).slice().reverse();
-  return `<div class="head"><div><h1>${CUR.icono} Mis escritos · ${CUR.nombre}</h1><p>${esFin() ? 'Todo lo que has explicado con tus palabras. Explicar es la mejor prueba de que entendiste.' : 'Todo lo que has escrito en inglés. Relee tus textos antiguos: verás cuánto has avanzado.'}</p></div></div>
+  return `<div class="head"><div><h1>${CUR.icono} Mis escritos · ${CUR.nombre}</h1><p>${esConceptos() ? 'Todo lo que has explicado con tus palabras. Explicar es la mejor prueba de que entendiste.' : 'Todo lo que has escrito en inglés. Relee tus textos antiguos: verás cuánto has avanzado.'}</p></div></div>
   ${es.length ? es.map(i => `<div class="card" style="margin-bottom:14px"><h3>Clase ${nc(i.clase_id)} · ${esc(claseMeta(i.clase_id)?.titulo || '')}
     <span>${i.tipo === 'prueba' ? 'Prueba' : 'Escritura'} · ${fechaCorta(i.fecha)} · ${contarPalabras(i.escritura)} palabras</span></h3>
     <div class="escrito">${esc(i.escritura)}</div></div>`).join('')
-    : `<div class="card"><div class="vacio">Todavía no hay escritos. Ve a la pestaña <b>${esFin() ? 'Explícalo' : 'Escritura'}</b> de tu clase.</div></div>`}`;
+    : `<div class="card"><div class="vacio">Todavía no hay escritos. Ve a la pestaña <b>${esConceptos() ? 'Explícalo' : 'Escritura'}</b> de tu clase.</div></div>`}`;
 }
 function vistaConfig() {
   return `<div class="head"><div><h1>Configuración</h1><p>Conexión con Google Sheets y respaldo</p></div>
@@ -925,7 +1004,7 @@ function vistaConfig() {
       <label>Clave (TOKEN)<small>La misma que pusiste en Code.gs</small><input class="txt mono" id="cfg-token" type="password" value="${esc(S.config.token)}"></label>
       <div class="acciones"><button class="btn" data-act="cfg-guardar">Guardar y probar conexión</button><span id="cfg-msg"></span></div>
     </div>
-    <div class="card cfg"><h3>🔊 Voz en inglés <span>se usa en English y en los términos en inglés de Finanzas</span></h3>
+    <div class="card cfg"><h3>🔊 Voz en inglés <span>se usa en English y en los términos en inglés de Finanzas y RIC</span></h3>
       <label>Voz<small>La ⭐ es la más natural que encontré en este dispositivo. Cada celular y computador tiene voces distintas.</small>
         <select class="txt" id="cfg-voz"></select></label>
       <label>Velocidad<select class="txt" id="cfg-velocidad">
@@ -960,8 +1039,8 @@ function cambiarCurso(id, irAlPanel = true) {
 }
 function pintarCursos() {
   const el = $('#cursos'); if (!el) return;
-  el.innerHTML = Object.values(CURSOS).map(c => `<button class="cur ${c === CUR ? 'on' : ''}" data-act="curso" data-c="${c.id}">${c.icono} ${c.nombre}</button>`).join('');
-  const v = $('[data-ruta="verbos"]'); if (v) v.innerHTML = esFin() ? '📖 Glosario' : '⚡ Verbos';
+  el.innerHTML = Object.values(CURSOS).map(c => `<button class="cur ${c === CUR ? 'on' : ''}" data-act="curso" data-c="${c.id}" title="${c.nombre}">${c.icono} ${c.corto || c.nombre}</button>`).join('');
+  const v = $('[data-ruta="verbos"]'); if (v) v.innerHTML = esConceptos() ? '📖 Glosario' : '⚡ Verbos';
 }
 function render() {
   const [ruta = 'panel', a, b] = location.hash.replace(/^#\/?/, '').split('/');
