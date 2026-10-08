@@ -8,8 +8,8 @@
    ===================================================================== */
 
 // VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
-const APP_VERSION = '2.1.0';
-const APP_FECHA = '7 oct 2026';
+const APP_VERSION = '3.0.0';
+const APP_FECHA = '8 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
 const INTERVALOS = [1, 2, 4, 7, 15, 30]; // días de espera al llegar a la caja 1..6
@@ -33,7 +33,7 @@ const TEMARIO_EN = [
 ];
 const ETAPAS_EN = { 1: 'Presente y pasado', 2: 'Experiencias y futuro', 3: 'Opinar, comparar y aconsejar', 4: 'Comunicación real' };
 const TEMARIO_FIN = [
-  { id: 101, etapa: 1, titulo: 'El dinero, la inflación y la UF', subtitulo: 'Inflación · IPC · UF' },
+  { id: 101, etapa: 1, titulo: 'El dinero pierde valor: inflación, IPC y UF', subtitulo: 'Poder de compra · IPC · UF · tu negocio' },
   { id: 102, etapa: 1, titulo: 'Interés simple y compuesto', subtitulo: 'Valor presente y futuro · regla del 72' },
   { id: 103, etapa: 1, titulo: 'Tasas: nominal, real, efectiva y la CAE', subtitulo: 'Fisher · tasas equivalentes · créditos' },
   { id: 104, etapa: 2, titulo: 'Presupuesto y flujo personal', subtitulo: 'Fondo de emergencia · 50/30/20' },
@@ -55,30 +55,34 @@ const TEMARIO_FIN = [
   { id: 120, etapa: 6, titulo: 'Psicología del inversionista + proyecto final', subtitulo: 'Sesgos · tu informe de análisis' },
 ];
 const TEMARIO_RIC = [
-  { id: 201, etapa: 1, titulo: 'Marco legal: DS 8/2019 y cómo funciona la norma', subtitulo: 'Ley · DS 8 · pliegos · licencias' },
-  { id: 202, etapa: 1, titulo: 'RIC N°01 · Empalmes', subtitulo: 'Capacidad · ubicación · edificios · protecciones' },
-  { id: 203, etapa: 1, titulo: 'RIC N°02 · Tableros eléctricos', subtitulo: 'Clasificación · IP · espacios · conexionado' },
-  { id: 204, etapa: 2, titulo: 'RIC N°03 · Alimentadores y demanda', subtitulo: 'Factores de demanda · caída de tensión' },
-  { id: 205, etapa: 2, titulo: 'RIC N°04 (I) · Conductores', subtitulo: 'Tipos · secciones · capacidad de corriente · colores' },
-  { id: 206, etapa: 2, titulo: 'RIC N°04 (II) · Canalizaciones', subtitulo: 'Ductos · bandejas · ocupación · montaje' },
-  { id: 207, etapa: 3, titulo: 'RIC N°05 · Protección contra tensiones peligrosas', subtitulo: 'Contactos directos e indirectos · diferenciales' },
-  { id: 208, etapa: 3, titulo: 'RIC N°06 · Puesta a tierra', subtitulo: 'Sistemas TN/TT/IT · electrodos · medición' },
-  { id: 209, etapa: 3, titulo: 'RIC N°10 · Instalaciones de uso general', subtitulo: 'Viviendas · circuitos · enchufes · alumbrado' },
-  { id: 210, etapa: 4, titulo: 'RIC N°07 · Instalaciones de equipos', subtitulo: 'Motores · condensadores · climatización' },
-  { id: 211, etapa: 4, titulo: 'RIC N°08 · Sistemas de emergencia', subtitulo: 'Respaldo · iluminación de seguridad' },
-  { id: 212, etapa: 4, titulo: 'RIC N°09 · Sistemas de autogeneración', subtitulo: 'Solar · conexión a la red · protecciones' },
-  { id: 213, etapa: 4, titulo: 'RIC N°15 · Recarga de vehículos eléctricos', subtitulo: 'Modos de carga · empalme · protecciones' },
-  { id: 214, etapa: 4, titulo: 'RIC N°14 y N°16 · Eficiencia y subsistemas', subtitulo: 'Eficiencia energética · subsistemas de distribución' },
-  { id: 215, etapa: 5, titulo: 'RIC N°11 (I) · Recintos especiales', subtitulo: 'Asistenciales · educacionales · húmedos · baños' },
-  { id: 216, etapa: 5, titulo: 'RIC N°11 (II) · Equipos y construcciones especiales', subtitulo: 'Grúas · ascensores · data center · agrícolas · minería' },
-  { id: 217, etapa: 5, titulo: 'RIC N°11 (III) · Provisionales y lugares públicos', subtitulo: 'Faenas · eventos · teatros · letreros · deportivos' },
-  { id: 218, etapa: 5, titulo: 'RIC N°12 · Ambientes explosivos', subtitulo: 'Clasificación de áreas · equipos Ex' },
-  { id: 219, etapa: 5, titulo: 'RIC N°13 · Subestaciones y salas eléctricas', subtitulo: 'Intemperie · interior · bóvedas · tierra' },
-  { id: 220, etapa: 6, titulo: 'RIC N°18 · Presentación de proyectos', subtitulo: 'Planos · memoria explicativa · cuadros de carga' },
-  { id: 221, etapa: 6, titulo: 'RIC N°19 · Puesta en servicio', subtitulo: 'Inspección · pruebas y ensayos · declaración' },
-  { id: 222, etapa: 6, titulo: 'RIC N°17 · Operación y mantenimiento + examen final', subtitulo: 'Programa de seguridad · caso integrado' },
+  { id: 201, etapa: 1, titulo: 'La instalación de principio a fin y quién la regula', subtitulo: 'Recorrido · riesgos · DS 8 · licencias · trámite' },
+  { id: 202, etapa: 1, titulo: 'La electricidad que usa un instalador', subtitulo: 'Tensión · corriente · Ohm · potencia mono y trifásica · kWh' },
+  { id: 203, etapa: 1, titulo: 'Por qué la electricidad daña y cómo se protege', subtitulo: 'Efectos en el cuerpo · incendio · lógica de las protecciones' },
+  { id: 204, etapa: 2, titulo: 'Empalmes: capacidad y ubicación', subtitulo: 'RIC N°01 · elegir el empalme · medidor · edificios' },
+  { id: 205, etapa: 2, titulo: 'Tableros: qué llevan y cómo se arman', subtitulo: 'RIC N°02 · tipos · IP · reserva · conexionado' },
+  { id: 206, etapa: 2, titulo: '¿Cuánta potencia necesita la casa?', subtitulo: 'RIC N°03 y N°10 · previsión de cargas · demanda' },
+  { id: 207, etapa: 3, titulo: 'Elegir el conductor', subtitulo: 'RIC N°04 · capacidad de corriente · factores de corrección' },
+  { id: 208, etapa: 3, titulo: 'Caída de tensión', subtitulo: 'RIC N°03 · calcular · límites · corregir' },
+  { id: 209, etapa: 3, titulo: 'Canalizaciones', subtitulo: 'RIC N°04 · ductos · bandejas · ocupación · montaje' },
+  { id: 210, etapa: 4, titulo: 'Protecciones contra sobrecarga y cortocircuito', subtitulo: 'RIC N°02 y N°05 · termomagnéticos · coordinación con el conductor' },
+  { id: 211, etapa: 4, titulo: 'Proteger a las personas: diferenciales', subtitulo: 'RIC N°05 · contactos directos e indirectos' },
+  { id: 212, etapa: 4, titulo: 'Puesta a tierra', subtitulo: 'RIC N°06 · sistemas TN/TT/IT · electrodos · medición' },
+  { id: 213, etapa: 4, titulo: 'La vivienda completa', subtitulo: 'RIC N°10 y N°11 · circuitos · enchufes · baños · proyecto guía' },
+  { id: 214, etapa: 5, titulo: 'Motores, climatización y condensadores', subtitulo: 'RIC N°07 · arranque · protecciones · factor de potencia' },
+  { id: 215, etapa: 5, titulo: 'Sistemas de emergencia y respaldo', subtitulo: 'RIC N°08 · generadores · UPS · iluminación de seguridad' },
+  { id: 216, etapa: 5, titulo: 'Energía solar y autogeneración', subtitulo: 'RIC N°09 · conexión a red · protecciones' },
+  { id: 217, etapa: 5, titulo: 'Recarga de vehículos eléctricos', subtitulo: 'RIC N°15 (2024) · modos de carga · empalme' },
+  { id: 218, etapa: 5, titulo: 'Eficiencia energética y subsistemas', subtitulo: 'RIC N°14 y N°16' },
+  { id: 219, etapa: 6, titulo: 'Recintos especiales y lugares de reunión', subtitulo: 'RIC N°11 (I) · asistenciales · educacionales · húmedos' },
+  { id: 220, etapa: 6, titulo: 'Construcciones y equipos especiales', subtitulo: 'RIC N°11 (II) · ascensores · data center · agrícolas · minería' },
+  { id: 221, etapa: 6, titulo: 'Provisionales, eventos y lugares públicos', subtitulo: 'RIC N°11 (III) · faenas · teatros · letreros' },
+  { id: 222, etapa: 6, titulo: 'Ambientes explosivos', subtitulo: 'RIC N°12 · clasificación de áreas · equipos Ex' },
+  { id: 223, etapa: 6, titulo: 'Subestaciones y media tensión', subtitulo: 'RIC N°13 · salas eléctricas · tierra' },
+  { id: 224, etapa: 7, titulo: 'Presentar el proyecto', subtitulo: 'RIC N°18 · planos · memoria · cuadros de carga' },
+  { id: 225, etapa: 7, titulo: 'Puesta en servicio', subtitulo: 'RIC N°19 · pruebas · verificación · declaración' },
+  { id: 226, etapa: 7, titulo: 'Operación, mantenimiento y proyecto final', subtitulo: 'RIC N°17 · caso integrado' },
 ];
-const ETAPAS_RIC = { 1: 'Marco legal, empalmes y tableros', 2: 'Dimensionar: demanda, conductores y canalizaciones', 3: 'Seguridad: protecciones, tierra y viviendas', 4: 'Equipos y sistemas', 5: 'Instalaciones especiales y media tensión', 6: 'Proyecto, puesta en servicio y mantenimiento' };
+const ETAPAS_RIC = { 1: 'Fundamentos: el mapa, la electricidad y los riesgos', 2: 'Llevar la energía a la casa', 3: 'Dimensionar', 4: 'Proteger a las personas', 5: 'Equipos y energía', 6: 'Instalaciones especiales', 7: 'Proyecto, puesta en servicio y mantención' };
 const ETAPAS_FIN = { 1: 'El dinero y el tiempo', 2: 'Finanzas personales', 3: 'Economía y mercados', 4: 'Finanzas de empresas', 5: 'Análisis de empresas en bolsa', 6: 'Portafolio y riesgo' };
 const TIPOS = { verbo: 'Verbo', palabra: 'Palabra', phrasal: 'Phrasal verb', combinacion: 'Combinación',
   completar: 'Completar', traducir: 'Traducir al inglés', corregir: 'Corregir el error', elegir: 'Elegir', orden: 'Ordenar', escritura: 'Escritura',
@@ -186,6 +190,8 @@ const claseActual = () => CUR.temario.find(c => desbloqueada(c.id) && !aprobada(
 /* ---------- Tarjetas de repaso (sistema Leitner) ---------- */
 function itemsDeClase(c) {
   const out = [];
+  if (c.formato === 'leccion') // lección guiada: el repaso trae preguntas de comprensión y aplicación
+    return (c.repaso || []).map((q, k) => ({ id: `q:${c.id}:${k}`, tipo: 'concepto', es: q.etiqueta || String(q.pregunta).slice(0, 80), en: '', q }));
   if (c.terminos) { // finanzas: términos (se escribe el término a partir de su definición) y fórmulas (autoevaluación)
     const pre = c.id >= 200 ? 'r:' : 'f:'; // prefijo por curso para que no choquen términos iguales
     c.terminos.forEach(w => out.push({ id: pre + w.es, tipo: 'termino', en: w.en, es: w.es, definicion: w.definicion, ejemplo: w.ejemplo }));
@@ -274,7 +280,7 @@ function respuestaTexto(it) {
 // Corrige cualquier tipo de pregunta (inglés y finanzas)
 function corregir(it, r) {
   if (it.tipo === 'numero') {
-    const tol = (it.tolerancia ?? Math.abs(it.respuesta) * 0.005) + 1e-9;
+    const tol = (it.tolRel != null ? Math.abs(it.respuesta) * it.tolRel : (it.tolerancia ?? Math.abs(it.respuesta) * 0.005)) + 1e-9;
     return lecturasNumero(r).some(v => Math.abs(v - it.respuesta) <= tol);
   }
   if (it.opciones) return it.respuestas.includes(r);
@@ -445,7 +451,7 @@ function vistaPanel() {
     <div class="card"><h3>Lo que más fallas <span>${esConceptos() ? 'conceptos y fórmulas' : 'verbos y palabras'}</span></h3>
       ${fallos.length ? `<table><tr><th>${esConceptos() ? 'Concepto' : 'Palabra'}</th><th>Tu respuesta</th><th>${esConceptos() ? 'En inglés' : 'Correcto'}</th><th>Aciertos</th></tr>
         ${fallos.map(t => { const p = Math.round(t.aciertos * 100 / (t.aciertos + t.fallos)); return `<tr>
-          <td>${esc(t.es)}</td><td class="mono bad">${esc(t.ultimo_error || '—')}</td><td class="mono ok">${esc(t.en)}</td>
+          <td>${esc(t.es)}</td><td class="mono bad">${esc(t.ultimo_error || '—')}</td><td class="mono ok">${esc(t.en || '—')}</td>
           <td><span class="bar"><i style="width:${p}%;background:${colorPct(p)}"></i></span></td></tr>`; }).join('')}</table>`
         : `<div class="vacio">Aquí aparecerán ${esConceptos() ? 'los conceptos' : 'los verbos y palabras'} que más se te olvidan.</div>`}
     </div>
@@ -484,7 +490,7 @@ function vistaClases() {
         : !lib ? '<span class="chip">🔒 Bloqueada</span>'
         : !datos ? '<span class="chip azul">Próximamente</span>'
         : p ? `<span class="chip amarillo">Mejor: ${p.mejor_puntaje}%</span>` : '<span class="chip amarillo">En curso</span>';
-      const info = !datos ? '' : datos.terminos ? `${datos.terminos.length} términos · 🧮 ${datos.calculadoras.length} calculadora${datos.calculadoras.length > 1 ? 's' : ''}`
+      const info = !datos ? '' : datos.formato === 'leccion' ? `🧭 Lección guiada · 🧩 caso · ✎ desafío` : datos.terminos ? `${datos.terminos.length} términos · 🧮 ${datos.calculadoras.length} calculadora${datos.calculadoras.length > 1 ? 's' : ''}`
         : `${datos.verbos.length} verbos · ${datos.vocabulario.length} palabras`;
       return `<a class="clase ${lib ? '' : 'lock'}" href="#/clase/${c.id}"><div class="n">Clase ${nc(c.id)}</div><h4>${esc(c.titulo)}</h4>
         <p>${esc(c.subtitulo)}</p><div class="meta"><span>${info}</span>${chip}</div></a>`;
@@ -493,6 +499,7 @@ function vistaClases() {
 
 /* ---------- Clase ---------- */
 const PESTANAS_EN = [['gramatica', 'Gramática'], ['verbos', 'Verbos'], ['vocabulario', 'Vocabulario'], ['phrasal', 'Phrasal verbs'], ['practica', 'Práctica'], ['escritura', 'Escritura']];
+const PESTANAS_LEC = [['leccion', '🧭 Lección guiada'], ['caso', '🧩 Caso práctico'], ['ficha', '📄 Ficha'], ['calculadora', '🧮 Calculadoras'], ['terminos', '📖 Términos']];
 const PESTANAS_FIN = [['teoria', 'Conceptos'], ['terminos', 'Términos'], ['calculadora', '🧮 Calculadora'], ['practica', 'Práctica'], ['escritura', 'Explícalo']];
 let PR = null; // estado de la práctica
 
@@ -508,13 +515,18 @@ function vistaClase(id, tab) {
   asegurarTarjetas();
   const p = S.progreso[id];
   const estado = aprobada(id) ? `<span class="chip verde">Aprobada · ${p.mejor_puntaje}%</span>` : p ? `<span class="chip amarillo">Mejor intento: ${p.mejor_puntaje}%</span>` : '';
-  const pest = c.terminos ? PESTANAS_FIN : PESTANAS_EN;
+  const pest = c.formato === 'leccion'
+    ? PESTANAS_LEC.filter(([k]) => (k !== 'calculadora' || c.calculadoras?.length) && (k !== 'terminos' || c.terminos?.length) && (k !== 'caso' || c.caso))
+    : c.terminos ? PESTANAS_FIN : PESTANAS_EN;
   if (!pest.some(([k]) => k === tab)) tab = pest[0][0];
   const cuerpo = { gramatica: tabGramatica, verbos: tabVerbos, vocabulario: tabVocabulario, phrasal: tabPhrasal, practica: tabPractica, escritura: tabEscritura,
-    teoria: tabTeoria, terminos: tabTerminos, calculadora: tabCalculadora }[tab];
+    teoria: tabTeoria, terminos: tabTerminos, calculadora: tabCalculadora,
+    leccion: x => vistaLeccion(x, 'leccion'), caso: x => vistaLeccion(x, 'caso'), ficha: tabFicha }[tab];
+  const viejo = c.terminos && c.formato !== 'leccion'
+    ? `<div class="aviso">🛠️ Esta clase todavía está en el <b>formato anterior</b> (conceptos y términos). La estoy rehaciendo como <b>lección guiada</b> con ejemplos resueltos, casos y desafío. Mientras tanto puedes usarla.</div>` : '';
   return `<div class="head"><div><p>${cursoDe(id).icono} ${cursoDe(id).nombre} · Etapa ${c.etapa} · Clase ${nc(c.id)} ${estado}</p><h1>${esc(c.titulo)}</h1><p>${esc(c.subtitulo)} — ${esc(c.objetivo)}</p></div>
     <div class="acciones" style="margin:0"><button class="btn sec grande" data-act="repaso-clase" data-id="${id}">⚡ Practicar esta clase</button>
-    <a class="btn grande" href="#/prueba/${id}">✎ Rendir prueba</a></div></div>
+    <a class="btn grande" href="#/prueba/${id}">✎ ${c.formato === 'leccion' ? 'Desafío' : 'Rendir prueba'}</a></div></div>${viejo}
     <div class="tabs">${pest.map(([k, n]) => `<a href="#/clase/${id}/${k}" class="${k === tab ? 'on' : ''}">${n}</a>`).join('')}</div>
     ${cuerpo(c)}`;
 }
@@ -752,9 +764,9 @@ let P = null;
 function vistaPrueba(id) {
   const c = claseDatos(id);
   if (!c || !desbloqueada(id)) return vistaClase(id, 'gramatica');
-  if (!P || P.claseId !== id) P = { claseId: id, i: 0, resp: [], fin: null };
+  if (!P || P.claseId !== id) P = { claseId: id, i: 0, resp: [], fin: null, items: prepararPrueba(c) };
   if (P.fin) return vistaResultado(c);
-  const it = c.prueba[P.i], total = c.prueba.length, r = P.resp[P.i] || '';
+  const it = P.items[P.i], total = P.items.length, r = P.resp[P.i] || '';
   let campo;
   if (it.tipo === 'escritura') {
     const ev = evaluarEscritura(r, it.minPalabras, it.obligatorias);
@@ -766,9 +778,9 @@ function vistaPrueba(id) {
     escritura: 'Debes cumplir el mínimo de palabras y usar todas las palabras indicadas.',
     numero: 'Escribe solo el número (punto o coma para decimales). Se acepta un pequeño margen de redondeo.',
     texto: 'Escribe el término en español o en inglés (las tildes no importan).', alternativas: 'Elige una alternativa.', vf: 'Elige verdadero o falso.' }[it.tipo] || '';
-  return `<div class="head"><div><p>${cursoDe(c.id).icono} ${cursoDe(c.id).nombre} · Clase ${nc(c.id)} · ${esc(c.titulo)}</p><h1>Prueba escrita</h1></div>
+  return `<div class="head"><div><p>${cursoDe(c.id).icono} ${cursoDe(c.id).nombre} · Clase ${nc(c.id)} · ${esc(c.titulo)}</p><h1>${c.formato === 'leccion' ? 'Desafío' : 'Prueba escrita'}</h1></div>
     <a class="btn sec" href="#/clase/${c.id}">✕ Salir</a></div>
-  <div class="segs">${c.prueba.map((_, k) => `<i class="${k === P.i ? 'a' : P.resp[k] ? 'r' : ''}"></i>`).join('')}</div>
+  <div class="segs">${P.items.map((_, k) => `<i class="${k === P.i ? 'a' : P.resp[k] ? 'r' : ''}"></i>`).join('')}</div>
   <div class="pq"><div class="tipo">Pregunta ${P.i + 1} de ${total} · ${TIPOS[it.tipo] || it.tipo}</div>
     <div class="enun">${esc(it.pregunta)}</div>${campo}
     <p style="color:var(--sub);font-size:13px;margin-top:8px">${ayuda} No verás la corrección hasta entregar.</p>
@@ -781,9 +793,9 @@ function vistaPrueba(id) {
 }
 function entregarPrueba() {
   const c = claseDatos(P.claseId);
-  const sinResp = c.prueba.length - c.prueba.filter((_, i) => (P.resp[i] || '').trim()).length;
+  const sinResp = P.items.length - P.items.filter((_, i) => (P.resp[i] || '').trim()).length;
   if (sinResp && !confirm(`Tienes ${sinResp} pregunta(s) sin responder. ¿Entregar igual?`)) return;
-  const detalle = c.prueba.map((it, i) => {
+  const detalle = P.items.map((it, i) => {
     const r = P.resp[i] || '';
     if (it.tipo === 'escritura') { const ev = evaluarEscritura(r, it.minPalabras, it.obligatorias); return { it, r, ok: ev.ok, ev }; }
     return { it, r, ok: corregir(it, r) };
@@ -804,7 +816,7 @@ function entregarPrueba() {
 }
 function vistaResultado(c) {
   const f = P.fin, sig = claseMeta(c.id + 1);
-  return `<div class="head"><div><p>Clase ${nc(c.id)} · ${esc(c.titulo)} · Prueba escrita</p><h1>${f.ok ? '¡Aprobaste! 🎉' : 'Todavía no — ¡casi!'}</h1>
+  return `<div class="head"><div><p>Clase ${nc(c.id)} · ${esc(c.titulo)} · ${c.formato === 'leccion' ? 'Desafío' : 'Prueba escrita'}</p><h1>${f.ok ? '¡Aprobaste! 🎉' : 'Todavía no — ¡casi!'}</h1>
     <p>${f.ok ? (sig ? `Se desbloqueó la clase ${nc(sig.id)}: ${esc(sig.titulo)}. Sus tarjetas ya están en tu repaso.` : 'Completaste el curso.')
       : `Necesitas ${NOTA_MINIMA}%. Repasa los errores de abajo, practica y vuelve a intentarlo.`}</p></div>
     <div class="nota" style="color:${colorPct(f.puntaje)}">${f.puntaje}%</div></div>
@@ -818,7 +830,7 @@ function vistaResultado(c) {
       ${d.it.tipo === 'escritura'
         ? `<div class="escrito">${esc(d.r) || '<i>(vacío)</i>'}</div><div class="chips">${chipsEscritura(d.ev, d.it.minPalabras)}</div>`
         : `<div>Tu respuesta: <span class="mono ${d.ok ? 'ok' : 'bad'}">${esc(d.r) || '(vacío)'}</span></div>
-           ${d.ok ? '' : `<div class="fb">Correcto: <b class="mono ok">${esc(respuestaTexto(d.it))}</b>${c.terminos ? '' : voz(d.it.respuestas[0])}</div>`}
+           ${d.ok ? '' : `<div class="fb">Correcto: <b class="mono ok">${esc(respuestaTexto(d.it))}</b>${cursoDe(c.id).id === 'ingles' ? voz(d.it.respuestas[0]) : ''}</div>`}
            ${d.it.explicacion ? `<div class="expl">💡 ${esc(d.it.explicacion)}</div>` : ''}`}
     </div></div>`).join('')}</div></div>`;
 }
@@ -833,7 +845,7 @@ function iniciarRepaso(modo, claseId) {
     : barajar(pendientesHoy()).sort((a, b) => a.caja - b.caja).slice(0, TARJETAS_POR_SESION).map(t => t.id);
   // 🎧 modo escuchar: ~1 de cada 3 palabras ya conocidas (caja ≥ 2) se dicta en vez de mostrarse en español
   const escuchar = new Set(HAY_VOZ && !esConceptos() ? ids.filter(id => S.vocab[id].tipo !== 'verbo' && S.vocab[id].caja >= 2 && Math.random() < 0.35) : []);
-  R = { cola: ids, pos: 0, modo, claseId, res: null, primeros: {}, reencolados: new Set(), snap: null, fin: null, escuchar, sonado: -1, mostrar: false };
+  R = { cola: ids, pos: 0, modo, claseId, res: null, primeros: {}, reencolados: new Set(), snap: null, fin: null, escuchar, sonado: -1, mostrar: false, inst: {}, selOp: undefined };
   if (location.hash !== '#/repaso') location.hash = '#/repaso'; else render();
 }
 function vistaRepaso() {
@@ -850,10 +862,11 @@ function vistaRepaso() {
         ${claseActual() && claseDatos(claseActual().id) ? `<button class="btn sec" data-act="repaso-clase" data-id="${claseActual().id}">📘 Practicar clase ${nc(claseActual().id)}</button>` : ''}
         <button class="btn sec" data-act="repaso-verbos">${esConceptos() ? '📖 Practicar conceptos al azar' : '⚡ Practicar verbos al azar'}</button></div>
       <p style="color:var(--sub);font-size:13px;margin-top:12px">Las tarjetas nuevas entran de a ${NUEVAS_POR_DIA} por día para no saturarte. ${esConceptos()
-        ? '📖 Verás una definición y escribes el término (en español o inglés). 🧮 En las fórmulas, piensa la respuesta, muéstrala y evalúate con honestidad.'
+        ? '💡 Vuelven las ideas y los procedimientos de tus lecciones: preguntas de aplicación con números nuevos y su explicación.'
         : '🎧 Algunas palabras que ya conoces te las dictará la voz.'}</p></div>`;
   }
   const id = R.cola[R.pos], t = S.vocab[id], info = INDICE[id], res = R.res;
+  if (t.tipo === 'concepto') return vistaTarjetaConcepto(id, t, info, res);
   let campos;
   if (t.tipo === 'verbo') {
     const nombres = ['Base', 'Pasado', 'Participio'], formas = [info.verbo.base, info.verbo.pasado, info.verbo.participio];
@@ -890,9 +903,34 @@ function vistaRepaso() {
           <button class="btn sec" data-act="tarjeta-nose">No sé</button></div>`}
     </div></div>`;
 }
+// Tarjeta de comprensión (clases en formato lección): una pregunta de aplicación con su explicación
+function vistaTarjetaConcepto(id, t, info, res) {
+  const it = R.inst[id] || (R.inst[id] = instanciar(info.q));
+  const titulo = R.modo === 'clase' ? `Práctica · Clase ${nc(R.claseId)}` : R.modo === 'verbos' ? 'Práctica al azar' : 'Repaso de hoy';
+  const campo = it.opciones
+    ? `<div class="ops ${it.opciones.some(o => o.length > 24) ? 'largas' : ''}">${it.opciones.map(o => `<button class="op ${res ? (o === R.selOp ? (res.ok ? 'sel bien' : 'sel mal') : it.respuestas.includes(o) ? 'correcta' : '') : ''}" data-act="rep-op" data-v="${esc(o)}" ${res ? 'disabled' : ''}>${esc(o)}</button>`).join('')}</div>`
+    : `<div class="num-campo" style="max-width:380px">${it.unidad === '$' ? '<span>$</span>' : ''}<input class="txt ${res ? (res.ok ? 'bien' : 'mal') : ''}" data-campo="tarjeta" value="${esc(res ? res.campos[0] : '')}" ${res ? 'disabled' : ''} ${it.tipo === 'numero' ? 'inputmode="decimal"' : ''} autocomplete="off" placeholder="Tu respuesta…">${it.unidad && it.unidad !== '$' ? `<span>${esc(it.unidad)}</span>` : ''}</div>`;
+  return `<div class="tarjeta">
+    <div class="prog"><span>${titulo}</span><span>${Math.min(R.pos + 1, R.cola.length)} / ${R.cola.length}</span></div>
+    <div class="pbar"><i style="width:${R.pos / R.cola.length * 100}%"></i></div>
+    <div class="flash"><span class="caja chip">Caja ${Math.min(t.caja, 6)}</span><div class="etq">💡 Clase ${nc(t.clase_id)} · ${esc(TIPOS[it.tipo] || 'Pregunta')}</div>
+      <div class="w def">${md(it.pregunta)}</div>${campo}
+      ${res ? `<div class="resultado ${res.ok ? 'bien' : 'mal'}">${res.ok ? '✓ ¡Correcto!' : '✗ La respuesta es:'} <b>${esc(respuestaTexto(it))}</b>${it.explicacion ? `<div class="ej">${md(it.explicacion)}</div>` : ''}</div>
+        <div class="acciones"><button class="btn grande" data-act="tarjeta-sig" id="btn-sig">Siguiente → <small style="opacity:.7">(Enter)</small></button></div>`
+      : `<div class="acciones">${it.opciones ? '' : '<button class="btn grande" data-act="tarjeta-comprobar">Comprobar <small style="opacity:.7">(Enter)</small></button>'}
+          <button class="btn sec" data-act="tarjeta-nose">No sé</button></div>`}
+    </div></div>`;
+}
 function comprobarTarjeta(noSe) {
   const id = R.cola[R.pos], t = S.vocab[id], info = INDICE[id];
   const campos = $$('[data-campo="tarjeta"]').map(i => i.value);
+  if (t.tipo === 'concepto') {
+    const it = R.inst[id], v = R.selOp ?? (campos[0] || '');
+    const ok = !noSe && corregir(it, v);
+    R.res = { ok, casi: false, campos: [v], noSe };
+    calificar(id, ok, noSe ? '(no sé)' : String(v));
+    render(); return;
+  }
   let ok, casi = false, error;
   if (t.tipo === 'verbo') {
     const formas = [info.verbo.base, info.verbo.pasado, info.verbo.participio];
@@ -941,7 +979,7 @@ function teniaRazon() {
   render();
 }
 function siguienteTarjeta() {
-  R.pos++; R.res = null; R.mostrar = false;
+  R.pos++; R.res = null; R.mostrar = false; R.selOp = undefined;
   if (R.pos >= R.cola.length) {
     const ids = Object.keys(R.primeros), ok = ids.filter(i => R.primeros[i].ok).length;
     const etiquetaT = i => esConceptos() ? S.vocab[i].es : S.vocab[i].en;
@@ -1071,6 +1109,7 @@ document.addEventListener('click', e => {
     case 'hablar': hablar(el.dataset.t); break;
     case 'curso': cambiarCurso(el.dataset.c); break;
     case 'tarjeta-mostrar': R.mostrar = true; render(); break;
+    case 'rep-op': R.selOp = el.dataset.v; comprobarTarjeta(false); break;
     case 'tarjeta-autoeval': autoevaluar(el.dataset.ok === '1'); break;
     case 'ocultar': $('#tverbos')?.classList.toggle('oculto'); break;
     case 'ver': el.classList.toggle('ver'); break;
@@ -1164,7 +1203,7 @@ document.addEventListener('keydown', e => {
     if (k < inputs.length - 1) inputs[k + 1].focus(); else comprobarTarjeta(false);
   } else if (campo === 'prueba') {
     e.preventDefault();
-    const total = claseDatos(P.claseId).prueba.length;
+    const total = P.items.length;
     if (P.i < total - 1) { P.i++; render(); }
   }
 });
