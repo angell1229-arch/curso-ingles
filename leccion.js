@@ -91,11 +91,12 @@ function vistaLeccion(c, parte) {
       ${i < pasos.length - 1
         ? `<button class="btn" id="lec-sig" data-act="lec-next" data-parte="${parte}" ${listo ? '' : 'disabled'}>Continuar →</button>`
         : `<button class="btn" data-act="lec-fin" data-parte="${parte}" ${listo ? '' : 'disabled'}>${E.completada ? '✓ Completada' : 'Terminar ✓'}</button>`}
-      <span class="lec-cuenta">Paso ${i + 1} de ${pasos.length}${listo ? '' : ' · responde para continuar'}</span></div>`;
+      <span class="lec-cuenta">Paso ${i + 1} de ${pasos.length}${listo ? '' : '<span class="lec-falta"> · responde para continuar</span>'}</span></div>`;
 }
 
 function renderPaso(c, parte, p, i, E) {
-  const d = p.diagrama ? `<div class="diag">${diagrama(p.diagrama)}</div>` : '';
+  const dg = p.diagrama ? diagrama(p.diagrama) : '';
+  const d = dg ? `<div class="diag">${dg}</div>${dg.startsWith('<svg') ? '<div class="diag-hint">↔ Desliza el diagrama para verlo completo</div>' : ''}` : '';
   const porque = p.porque ? `<div class="porque">💡 <b>Por qué importa:</b> ${md(p.porque)}</div>` : '';
   switch (p.tipo) {
     case 'texto':
@@ -175,6 +176,9 @@ function tabFicha(c) {
 }
 
 /* ---------- Eventos de la lección ---------- */
+// En celular el encabezado de la clase ocupa media pantalla: al avanzar se va al paso, no al inicio de la página
+function irAlPaso() { const el = $('.lec-prog'); if (el) scrollTo(0, Math.max(0, el.getBoundingClientRect().top + scrollY - 12)); }
+const mostrar = sel => { const el = $(sel); if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
 function claseDeRuta() { return claseDatos(+location.hash.split('/')[2]); }
 function lecComprobar(parte, valor) {
   const c = claseDeRuta(); if (!c) return;
@@ -184,7 +188,7 @@ function lecComprobar(parte, valor) {
   r.v = valor; r.borrador = undefined; r.intentos++; r.ok = corregir(it, valor);
   if (r.intentos === 1) r.primero = r.ok;
   if (p.tipo === 'predice') r.visto = true;
-  guardarLocal(); render();
+  guardarLocal(); render(); mostrar('.paso .resultado');
 }
 function lecTerminar(parte) {
   const c = claseDeRuta(); if (!c) return;
@@ -199,23 +203,23 @@ function lecTerminar(parte) {
   }
   guardarLocal();
   location.hash = `#/clase/${c.id}/${parte === 'leccion' && c.caso ? 'caso' : 'ficha'}`;
-  scrollTo(0, 0);
+  setTimeout(() => { const t = $('.tabs'); if (t) scrollTo(0, Math.max(0, t.getBoundingClientRect().top + scrollY - 8)); }, 60);
 }
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-act^="lec-"]'); if (!el) return;
   const c = claseDeRuta(); if (!c) return;
   const parte = el.dataset.parte || 'leccion', E = estadoLec(c, parte), i = E.paso, pasos = pasosDe(c, parte);
   switch (el.dataset.act) {
-    case 'lec-next': if (i < pasos.length - 1) { E.paso++; guardarLocal(); render(); scrollTo(0, 0); } break;
-    case 'lec-prev': if (i > 0) { E.paso--; guardarLocal(); render(); scrollTo(0, 0); } break;
+    case 'lec-next': if (i < pasos.length - 1) { E.paso++; guardarLocal(); render(); irAlPaso(); } break;
+    case 'lec-prev': if (i > 0) { E.paso--; guardarLocal(); render(); irAlPaso(); } break;
     case 'lec-op': lecComprobar(parte, el.dataset.v); break;
     case 'lec-check': lecComprobar(parte, $('[data-campo="lec"]')?.value); break;
-    case 'lec-ver': (E.res[i] = E.res[i] || {}).visto = true; guardarLocal(); render(); break;
-    case 'lec-rev': E.rev[i] = (E.rev[i] || 0) + 1; guardarLocal(); render(); break;
-    case 'lec-reflex': (E.res[i] = E.res[i] || {}).visto = true; guardarLocal(); render(); break;
+    case 'lec-ver': (E.res[i] = E.res[i] || {}).visto = true; guardarLocal(); render(); mostrar('.paso .resultado'); break;
+    case 'lec-rev': E.rev[i] = (E.rev[i] || 0) + 1; guardarLocal(); render(); mostrar('.paso .resultado.bien, .paso [data-act="lec-rev"]'); break;
+    case 'lec-reflex': (E.res[i] = E.res[i] || {}).visto = true; guardarLocal(); render(); mostrar('.paso .aviso.azul'); break;
     case 'lec-otro': delete E.vals[i]; E.res[i] = { intentos: 0 }; guardarLocal(); render(); break;
     case 'lec-fin': lecTerminar(parte); break;
-    case 'lec-reiniciar': E.paso = 0; E.res = {}; E.rev = {}; E.vals = {}; guardarLocal(); render(); scrollTo(0, 0); break;
+    case 'lec-reiniciar': E.paso = 0; E.res = {}; E.rev = {}; E.vals = {}; guardarLocal(); render(); irAlPaso(); break;
   }
 });
 document.addEventListener('input', e => {

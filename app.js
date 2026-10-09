@@ -8,7 +8,7 @@
    ===================================================================== */
 
 // VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
-const APP_VERSION = '3.1.0';
+const APP_VERSION = '3.2.0';
 const APP_FECHA = '8 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
@@ -524,8 +524,8 @@ function vistaClase(id, tab) {
     leccion: x => vistaLeccion(x, 'leccion'), caso: x => vistaLeccion(x, 'caso'), ficha: tabFicha }[tab];
   const viejo = c.terminos && c.formato !== 'leccion'
     ? `<div class="aviso">🛠️ Esta clase todavía está en el <b>formato anterior</b> (conceptos y términos). La estoy rehaciendo como <b>lección guiada</b> con ejemplos resueltos, casos y desafío. Mientras tanto puedes usarla.</div>` : '';
-  return `<div class="head"><div><p>${cursoDe(id).icono} ${cursoDe(id).nombre} · Etapa ${c.etapa} · Clase ${nc(c.id)} ${estado}</p><h1>${esc(c.titulo)}</h1><p>${esc(c.subtitulo)} — ${esc(c.objetivo)}</p></div>
-    <div class="acciones" style="margin:0"><button class="btn sec grande" data-act="repaso-clase" data-id="${id}">⚡ Practicar esta clase</button>
+  return `<div class="head"><div><p>${cursoDe(id).icono} ${cursoDe(id).nombre} · Etapa ${c.etapa} · Clase ${nc(c.id)} ${estado}</p><h1>${esc(c.titulo)}</h1><p class="desc">${esc(c.subtitulo)} — ${esc(c.objetivo)}</p></div>
+    <div class="acciones acc-clase" style="margin:0"><button class="btn sec grande" data-act="repaso-clase" data-id="${id}">⚡ Practicar esta clase</button>
     <a class="btn grande" href="#/prueba/${id}">✎ ${c.formato === 'leccion' ? 'Desafío' : 'Rendir prueba'}</a></div></div>${viejo}
     <div class="tabs">${pest.map(([k, n]) => `<a href="#/clase/${id}/${k}" class="${k === tab ? 'on' : ''}">${n}</a>`).join('')}</div>
     ${cuerpo(c)}`;
