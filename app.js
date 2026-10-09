@@ -8,7 +8,7 @@
    ===================================================================== */
 
 // VERSIÓN: subirla en cada cambio (y el ?v= de index.html). Detalle en FUNCIONES_APP.md → Registro de cambios.
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.1.0';
 const APP_FECHA = '8 oct 2026';
 const APP_ONLINE = 'https://angell1229-arch.github.io/curso-ingles/';
 const NOTA_MINIMA = 80;
@@ -34,8 +34,8 @@ const TEMARIO_EN = [
 const ETAPAS_EN = { 1: 'Presente y pasado', 2: 'Experiencias y futuro', 3: 'Opinar, comparar y aconsejar', 4: 'Comunicación real' };
 const TEMARIO_FIN = [
   { id: 101, etapa: 1, titulo: 'El dinero pierde valor: inflación, IPC y UF', subtitulo: 'Poder de compra · IPC · UF · tu negocio' },
-  { id: 102, etapa: 1, titulo: 'Interés simple y compuesto', subtitulo: 'Valor presente y futuro · regla del 72' },
-  { id: 103, etapa: 1, titulo: 'Tasas: nominal, real, efectiva y la CAE', subtitulo: 'Fisher · tasas equivalentes · créditos' },
+  { id: 102, etapa: 1, titulo: 'El tiempo vale dinero: interés compuesto y valor presente', subtitulo: 'Compuesto · regla del 72 · valor presente · ahorro mensual' },
+  { id: 103, etapa: 1, titulo: 'Tasas que engañan: tasa real, tasa efectiva, la cuota y la CAE', subtitulo: 'Fisher · mensual vs. anual · cuota · CAE · tasa máxima' },
   { id: 104, etapa: 2, titulo: 'Presupuesto y flujo personal', subtitulo: 'Fondo de emergencia · 50/30/20' },
   { id: 105, etapa: 2, titulo: 'Deuda inteligente', subtitulo: 'Tarjetas · consumo · hipotecario · refinanciar' },
   { id: 106, etapa: 2, titulo: 'Ahorro e inversión personal', subtitulo: 'Depósitos · fondos mutuos · ETFs · APV · AFP' },

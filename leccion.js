@@ -327,5 +327,44 @@ const DIAG = {
       <div class="def">Defensas: conductor de sección correcta (RIC N°04) · protección termomagnética coordinada con el conductor (RIC N°02/N°05) · conexiones bien apretadas y materiales adecuados (RIC N°01 · 6.2)</div></div>
     <div class="rg"><h5>⚡ Choque eléctrico</h5><ul><li><b>Contacto directo</b>: tocar una parte energizada (un borne, un cable pelado).</li><li><b>Contacto indirecto</b>: tocar una carcasa que quedó energizada por una falla de aislación.</li></ul>
       <div class="def">Defensas: aislación y envolventes con grado IP (RIC N°02/N°05) · protector diferencial (RIC N°05) · puesta a tierra de las masas (RIC N°06)</div></div></div>`,
+  /* ---------- Finanzas: el tiempo y las tasas ---------- */
+  simple_compuesto: () => {
+    const anos = [0, 5, 10, 15, 20, 25, 30], k = 150 / 7.7;
+    return `<svg viewBox="0 0 640 250" class="svg" role="img" aria-label="Interés simple vs compuesto">
+      <text x="0" y="16" class="t-b">$1.000.000 al 7 % anual: interés simple vs. compuesto (millones de $)</text>
+      <line x1="40" y1="200" x2="630" y2="200" stroke="var(--borde)"/>
+      ${anos.map((n, j) => { const sim = 1 + 0.07 * n, com = Math.pow(1.07, n), x = 50 + j * 84;
+        return `<rect x="${x}" y="${200 - sim * k}" width="30" height="${sim * k}" rx="3" fill="var(--c3)"/>
+          <rect x="${x + 34}" y="${200 - com * k}" width="30" height="${com * k}" rx="3" fill="var(--verde-btn)"/>
+          <text x="${x + 15}" y="${194 - sim * k}" class="t-s" text-anchor="middle">${fmtNum(sim, 1)}</text>
+          <text x="${x + 49}" y="${194 - com * k}" class="t-s" text-anchor="middle">${fmtNum(com, 1)}</text>
+          <text x="${x + 32}" y="218" class="t" text-anchor="middle">año ${n}</text>`; }).join('')}
+      <rect x="40" y="232" width="12" height="12" fill="var(--c3)"/><text x="58" y="243" class="t">simple: crece en línea recta</text>
+      <rect x="290" y="232" width="12" height="12" fill="var(--verde-btn)"/><text x="308" y="243" class="t">compuesto: los intereses también ganan intereses</text></svg>`;
+  },
+  linea_vp: () => `<svg viewBox="0 0 640 200" class="svg" role="img" aria-label="Valor presente y valor futuro">
+    <defs><marker id="fv" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--verde-btn)"/></marker>
+      <marker id="fp" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--azul)"/></marker></defs>
+    <line x1="60" y1="100" x2="600" y2="100" stroke="var(--txt)" stroke-width="2"/>
+    ${['Hoy', 'Año 1', 'Año 2'].map((t, j) => `<circle cx="${80 + j * 240}" cy="100" r="6" fill="var(--txt)"/><text x="${80 + j * 240}" y="126" class="t-b" text-anchor="middle">${t}</text>`).join('')}
+    <path d="M90 70 C 250 30, 410 30, 550 70" fill="none" stroke="var(--verde-btn)" stroke-width="2.5" marker-end="url(#fv)"/>
+    <text x="320" y="34" class="t" text-anchor="middle" fill="var(--verde-btn)">VALOR FUTURO: × 1,06 × 1,06</text>
+    <text x="80" y="64" class="t-b" text-anchor="middle">$1.000.000</text><text x="560" y="64" class="t-b" text-anchor="middle">$1.123.600</text>
+    <path d="M550 140 C 410 180, 250 180, 90 140" fill="none" stroke="var(--azul)" stroke-width="2.5" marker-end="url(#fp)"/>
+    <text x="320" y="190" class="t" text-anchor="middle" fill="var(--azul)">VALOR PRESENTE (descontar): ÷ 1,06 ÷ 1,06</text>
+    <text x="80" y="156" class="t-b" text-anchor="middle">$1.023.496</text><text x="560" y="156" class="t-b" text-anchor="middle">$1.150.000</text></svg>`,
+  amortizacion: () => {
+    const P = 2000000, i = 0.015, n = 24, c = P * i / (1 - Math.pow(1 + i, -n)), k = 110 / c;
+    let saldo = P, bars = '';
+    for (let m = 1; m <= n; m++) { const int = saldo * i, am = c - int; saldo -= am; const x = 30 + (m - 1) * 25;
+      bars += `<rect x="${x}" y="${170 - c * k}" width="20" height="${int * k}" fill="var(--c2)"/><rect x="${x}" y="${170 - am * k}" width="20" height="${am * k}" fill="var(--verde-btn)"/>
+        ${m === 1 || m === 12 || m === 24 ? `<text x="${x + 10}" y="186" class="t-s" text-anchor="middle">${m}</text>` : ''}`; }
+    return `<svg viewBox="0 0 640 230" class="svg" role="img" aria-label="Cómo se reparte la cuota">
+      <text x="0" y="16" class="t-b">Crédito de $2.000.000 al 1,5 % mensual en 24 cuotas fijas de $99.848</text>
+      <text x="0" y="36" class="t-s">Cada barra es una cuota: la parte de arriba es interés y la de abajo amortiza (paga) la deuda</text>
+      ${bars}<text x="320" y="200" class="t" text-anchor="middle">número de cuota</text>
+      <rect x="30" y="210" width="12" height="12" fill="var(--c2)"/><text x="48" y="221" class="t">interés (sobre el saldo que debes)</text>
+      <rect x="300" y="210" width="12" height="12" fill="var(--verde-btn)"/><text x="318" y="221" class="t">amortización (baja tu deuda)</text></svg>`;
+  },
 };
 function diagrama(id) { try { return (DIAG[id] || (() => ''))(); } catch (e) { return ''; } }
